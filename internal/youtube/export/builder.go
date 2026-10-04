@@ -11,34 +11,17 @@ func BuildPlaylist(
 	planner *fields.Planner,
 ) (ExportData, error) {
 
-	result := ExportData{
-		"id":             playlist.ID,
-		"title":          playlist.Title,
-		"description":    playlist.Description,
-		"channel_id":     playlist.ChannelID,
-		"channel_title":  playlist.ChannelTitle,
-		"thumbnails":     playlist.Thumbnails,
-		"tags":           playlist.Tags,
-		"item_count":     playlist.ItemCount,
-		"privacy_status": playlist.PrivacyStatus,
-		"published_at":   playlist.PublishedAt,
-		"modified_at":    playlist.ModifiedAt,
-	}
-
-	if len(playlist.Items) > 0 {
-		items := make([]any, 0, len(playlist.Items))
-		for _, item := range playlist.Items {
-			items = append(items, item)
-		}
-		result["items"] = items
+	result, err := exportStruct(playlist, planner)
+	if err != nil {
+		return nil, youtube.Err.Export.MarshalFailed().Wrap(err)
 	}
 
 	if len(playlist.Videos) > 0 {
 		videos := make([]any, 0, len(playlist.Videos))
 		for _, v := range playlist.Videos {
-			videoData, err := exportStruct(v.Video, planner)
+			videoData, err := BuildVideo(v.Video, planner)
 			if err != nil {
-				return nil, youtube.Err.Export.MarshalFailed().Wrap(err)
+				return nil, err
 			}
 
 			videoData["position"] = v.Position

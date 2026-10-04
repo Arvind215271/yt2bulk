@@ -98,9 +98,9 @@ func (h *Handler) Export(c *echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	resources := h.resourceService.ProcessResources(ctx, inputs, pipelineReq)
+	resources, stats := h.resourceService.ProcessResourcesWithStats(ctx, inputs, pipelineReq)
 
-	data, err := h.exportService.ExportBatchResource(resources, exportFormat, fieldPlanner)
+	data, err := h.exportService.ExportBatchResource(resources, exportFormat, fieldPlanner, &stats)
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,9 @@ import Header from '@/components/Header';
 import { availableFields } from '@/constants/fields';
 import { theme } from '@/theme/theme';
 
+import { checkPreflight, PreflightResponse } from '@/services/preflight';
+import PreflightResultCard from '@/components/PreflightResultCard';
+
 export default function ExportPage() {
   const [inputs, setInputs] = useState('');
   const [format, setFormat] = useState('json');
@@ -14,8 +17,11 @@ export default function ExportPage() {
 
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
+  const [exportStats, setExportStats] = useState<any>(null);
   const [lastBlob, setLastBlob] = useState<Blob | null>(null);
   const [filename, setFilename] = useState('export.json');
+  const [preflightData, setPreflightData] = useState<PreflightResponse | null>(null);
+  const [preflightLoading, setPreflightLoading] = useState(false);
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
@@ -34,6 +40,33 @@ export default function ExportPage() {
   const [rawSubtitleOptions, setRawSubtitleOptions] = useState<any>(null);
   const [subtitleSearchQuery, setSubtitleSearchQuery] = useState('');
   const [selectedSubtitlePrefs, setSelectedSubtitlePrefs] = useState<Array<{ language: string; type: 'manual' | 'automatic' }>>([]);
+
+  const handlePreflight = async () => {
+    const list = inputs.split('\n').map((s: string) => s.trim()).filter(Boolean);
+    if (list.length === 0) {
+      alert('Please enter at least one YouTube link or ID first.');
+      return;
+    }
+
+    setPreflightLoading(true);
+    setPreflightData(null);
+    setOutput(null);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    try {
+      const data = await checkPreflight(list, controller.signal);
+      setPreflightData(data);
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        alert('Preflight check failed: ' + err.message);
+      }
+    } finally {
+      setPreflightLoading(false);
+      abortControllerRef.current = null;
+    }
+  };
 
   const handleFetchSubtitleOptions = async () => {
     const list = inputs.split('\n').map((s: string) => s.trim()).filter(Boolean);
@@ -227,8 +260,16 @@ export default function ExportPage() {
       if (contentType.includes('json') || format === 'json' || format === 'yaml' || format === 'xml') {
         try {
           const parsed = JSON.parse(text);
-          setOutput(JSON.stringify(parsed, null, 2));
+          if (parsed.statistics) {
+            setExportStats(parsed.statistics);
+            const { statistics, ...cleaned } = parsed;
+            setOutput(JSON.stringify(cleaned, null, 2));
+          } else {
+            setExportStats(null);
+            setOutput(JSON.stringify(parsed, null, 2));
+          }
         } catch {
+          setExportStats(null);
           setOutput(text);
         }
       } else {
@@ -585,41 +626,169 @@ export default function ExportPage() {
         </form>
 
         {output && (
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem', width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Your Export Result</h2>
-              {lastBlob && (
-                <button
-                  onClick={handleDownload}
-                  style={{
-                    backgroundColor: theme.colors.primaryRed,
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '0.6rem 1.2rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Download File
-                </button>
-              )}
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            {/* Export Result Card */}
+            <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Your Export Result</h2>
+                {lastBlob && (
+                  <button
+                    onClick={handleDownload}
+                    style={{
+                      backgroundColor: theme.colors.primaryRed,
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '0.6rem 1.2rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Download File
+                  </button>
+                )}
+              </div>
+              <pre style={{
+                backgroundColor: theme.colors.bg,
+                border: `1px solid ${theme.colors.borderColor}`,
+                padding: '1.25rem',
+                borderRadius: '6px',
+                fontFamily: theme.fonts.mono,
+                fontSize: '0.85rem',
+                color: theme.colors.outputCode,
+                overflowX: 'auto',
+                maxHeight: '450px',
+                lineHeight: '1.5'
+              }}>
+                {output}
+              </pre>
             </div>
-            <pre style={{
-              backgroundColor: theme.colors.bg,
-              border: `1px solid ${theme.colors.borderColor}`,
-              padding: '1.25rem',
-              borderRadius: '6px',
-              fontFamily: theme.fonts.mono,
-              fontSize: '0.85rem',
-              color: theme.colors.outputCode,
-              overflowX: 'auto',
-              maxHeight: '450px',
-              lineHeight: '1.5'
-            }}>
-              {output}
-            </pre>
+
+            {/* Processing Statistics Card */}
+            {exportStats && (
+              <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '1.5rem', borderBottom: `1px solid ${theme.colors.borderColor}`, paddingBottom: '0.75rem' }}>
+                  Processing Statistics Breakdown
+                </h2>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  
+                  {/* 1. Resource Stats Table */}
+                  <div style={{ backgroundColor: theme.colors.bg, borderRadius: '8px', border: `1px solid ${theme.colors.borderColor}`, overflow: 'hidden' }}>
+                    <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderBottom: `1px solid ${theme.colors.borderColor}`, fontWeight: 700, fontSize: '0.95rem', color: theme.colors.primaryRed }}>
+                      Resource Statistics
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', padding: '1rem', gap: '1rem' }}>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Requested</div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{exportStats.ResourcesRequested ?? 0}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Succeeded</div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4caf50' }}>{exportStats.ResourcesSucceeded ?? 0}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Failures</div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#c62828' }}>{exportStats.ResourceFailures ?? 0}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Videos Processed</div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{exportStats.VideosProcessed ?? 0}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Metadata Stats Table */}
+                  {exportStats.Metadata && (
+                    <div style={{ backgroundColor: theme.colors.bg, borderRadius: '8px', border: `1px solid ${theme.colors.borderColor}`, overflow: 'hidden' }}>
+                      <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderBottom: `1px solid ${theme.colors.borderColor}`, fontWeight: 700, fontSize: '0.95rem', color: theme.colors.primaryRed }}>
+                        Metadata Statistics
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', padding: '1rem', gap: '1rem' }}>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Attempts</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Metadata.Attempts ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Successes</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#4caf50' }}>{exportStats.Metadata.Successes ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Failures</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#c62828' }}>{exportStats.Metadata.Failures ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Cache Hits</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Metadata.CacheHits ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Cache Misses</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Metadata.CacheMisses ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Upstream Fetches</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Metadata.UpstreamFetches ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>YT-DLP Requests</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Metadata.YTDLPRequests ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Fallbacks</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Metadata.Fallbacks ?? 0}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. Subtitle Stats Table */}
+                  {exportStats.Subtitle && (
+                    <div style={{ backgroundColor: theme.colors.bg, borderRadius: '8px', border: `1px solid ${theme.colors.borderColor}`, overflow: 'hidden' }}>
+                      <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderBottom: `1px solid ${theme.colors.borderColor}`, fontWeight: 700, fontSize: '0.95rem', color: theme.colors.primaryRed }}>
+                        Subtitle Statistics
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', padding: '1rem', gap: '1rem' }}>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Attempts</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Subtitle.Attempts ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Successes</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#4caf50' }}>{exportStats.Subtitle.Successes ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Failures</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#c62828' }}>{exportStats.Subtitle.Failures ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Manual Requests</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Subtitle.ManualRequests ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Automatic Requests</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Subtitle.AutomaticRequests ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Cache Hits</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Subtitle.CacheHits ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Upstream Fetches</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Subtitle.UpstreamFetches ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: theme.colors.textMuted }}>Fallbacks</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exportStats.Subtitle.Fallbacks ?? 0}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

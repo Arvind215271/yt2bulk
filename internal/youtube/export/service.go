@@ -5,6 +5,7 @@ import (
 
 	"github.com/Arvind215271/askito/internal/youtube"
 	"github.com/Arvind215271/askito/internal/youtube/fields"
+	"github.com/Arvind215271/askito/internal/youtube/stats"
 )
 
 // Service is the application layer that orchestrates
@@ -98,11 +99,17 @@ func (s *Service) ExportBatchResource(
 	resources []youtube.Resource,
 	format Format,
 	planner *fields.Planner,
+	stats *stats.ProcessStats,
 ) ([]byte, error) {
 
 	data, err := BuildBatchResource(resources, planner)
 	if err != nil {
 		return nil, err
+	}
+
+	// Incorporate statistics into ExportData
+	if stats != nil {
+		data["statistics"] = stats
 	}
 
 	return s.exportData(format, data)

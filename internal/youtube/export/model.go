@@ -2,6 +2,7 @@ package export
 
 import (
 	"github.com/Arvind215271/askito/internal/youtube/fields"
+	"github.com/Arvind215271/askito/internal/youtube/stats"
 )
 
 type Format string
@@ -42,7 +43,8 @@ type ResourceExportRequest struct {
 }
 
 type ExportResponse struct {
-	SchemaVersion string     `json:"schema_version"`
-	Format        Format     `json:"format"`
-	Data          ExportData `json:"data"`
+	SchemaVersion string              `json:"schema_version"`
+	Format        Format              `json:"format"`
+	Data          ExportData          `json:"data"`
+	Statistics    *stats.ProcessStats `json:"statistics,omitempty"`
 }

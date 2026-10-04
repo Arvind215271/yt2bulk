@@ -31,6 +31,9 @@ const (
 	FieldTranscriptText   = "transcript_text"
 	FieldTranscriptSignal = "transcript_signal"
 	FieldSubtitleMetadata = "subtitle_metadata"
+	FieldVideoID          = "video_id"
+	FieldPosition         = "position"
+	FieldAddedAt          = "added_at"
 )
 
 // Registry is the single source of truth for valid fields and their definitions.
@@ -168,6 +171,21 @@ var Registry = map[string]FieldDefinition{
 	FieldSubtitleMetadata: {
 		Name:    FieldSubtitleMetadata,
 		Group:   GroupTranscript,
+		Default: true,
+	},
+	FieldVideoID: {
+		Name:    FieldVideoID,
+		Group:   GroupMetadata,
+		Default: true,
+	},
+	FieldPosition: {
+		Name:    FieldPosition,
+		Group:   GroupMetadata,
+		Default: true,
+	},
+	FieldAddedAt: {
+		Name:    FieldAddedAt,
+		Group:   GroupMetadata,
 		Default: true,
 	},
 }

@@ -40,6 +40,9 @@ export default function Header() {
         <Link href="/subtitle" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
           Subtitle
         </Link>
+        <Link href="/preflight" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+          Preflight
+        </Link>
         <Link href="/export" style={{ color: theme.colors.primaryRed, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>
           Export
         </Link>

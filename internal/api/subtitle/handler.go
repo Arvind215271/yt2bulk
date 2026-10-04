@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/Arvind215271/askito/internal/youtube"
+	"github.com/Arvind215271/askito/internal/youtube/export"
 	"github.com/Arvind215271/askito/internal/youtube/fields"
 	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
 	"github.com/Arvind215271/askito/internal/youtube/pipeline"
@@ -14,13 +15,12 @@ import (
 	"github.com/Arvind215271/askito/internal/youtube/resource"
 	"github.com/Arvind215271/askito/internal/youtube/subtitle"
 	"github.com/labstack/echo/v5"
-	"github.com/Arvind215271/askito/internal/youtube/export"
 )
 
 type Handler struct {
 	resourceService *resource.Service
 	subtitleService *subtitle.SubtitleService
-	exportService *export.Service
+	exportService   *export.Service
 }
 
 func NewHandler(
@@ -31,7 +31,7 @@ func NewHandler(
 	return &Handler{
 		resourceService: resourceService,
 		subtitleService: subtitleService,
-		exportService: exportService,
+		exportService:   exportService,
 	}
 }
 
@@ -70,10 +70,10 @@ func (h *Handler) GetSubtitleOptions(c *echo.Context) error {
 	ctx := c.Request().Context()
 	resources := h.resourceService.ProcessResources(ctx, inputs, pipelineReq)
 
-	data, err := h.exportService.ExportBatchResource(resources, export.FormatJSON, fieldPlanner)
+	data, err := h.exportService.ExportBatchResource(resources, export.FormatJSON, fieldPlanner, nil)
 	if err != nil {
 		return err
-	}	
+	}
 
 	contentType := "application/json"
 

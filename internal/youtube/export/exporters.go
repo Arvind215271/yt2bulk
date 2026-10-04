@@ -16,6 +16,7 @@ type JSONExporter struct {
 }
 
 func (e *JSONExporter) Export(data ExportData) ([]byte, error) {
+	// If ExportData contains "statistics", it will be serialized as part of the JSON object.
 	if e.Pretty {
 		return json.MarshalIndent(data, "", "  ")
 	}

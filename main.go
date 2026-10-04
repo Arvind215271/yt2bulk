@@ -17,6 +17,7 @@ import (
 	"github.com/Arvind215271/askito/internal/api"
 	"github.com/Arvind215271/askito/internal/api/export"
 	apiPlaylist "github.com/Arvind215271/askito/internal/api/playlist"
+	apiPreflight "github.com/Arvind215271/askito/internal/api/preflight"
 	apiSubtitle "github.com/Arvind215271/askito/internal/api/subtitle"
 	apiTranscript "github.com/Arvind215271/askito/internal/api/transcript"
 
@@ -28,6 +29,7 @@ import (
 	youtubeapi "github.com/Arvind215271/askito/internal/youtube/metadata/youtube_api"
 	ytdlpmetadata "github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp"
 	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp/python"
+	"github.com/Arvind215271/askito/internal/youtube/preflight"
 	ytSubtitle "github.com/Arvind215271/askito/internal/youtube/subtitle"
 
 	// transcript
@@ -151,6 +153,7 @@ func main() {
 	)
 
 	subtitleService := ytSubtitle.NewSubtitleService(cacheManager, logger, pythonPool)
+	preflightService := preflight.NewService(youtubeService)
 	transcriptService := ytTranscript.NewService()
 	signalService := ytSignal.NewSignalService()
 
@@ -203,6 +206,9 @@ func main() {
 
 	playlistHandler := apiPlaylist.NewHandler(youtubeService)
 	apiPlaylist.RegisterPlaylistRoutes(e.Group("/playlist"), playlistHandler)
+
+	preflightHandler := apiPreflight.NewHandler(preflightService)
+	apiPreflight.RegisterRoutes(e.Group("/preflight"), preflightHandler)
 
 	// only run debug in development
 	if config.Env == "dev" {
