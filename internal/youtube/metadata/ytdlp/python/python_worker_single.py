@@ -155,6 +155,89 @@ def main():
 
                 continue
 
+            if cmd == "playlist_metadata":
+
+                playlist_id = req["playlist_id"]
+
+                playlist_url = (
+                    "https://www.youtube.com/playlist?list="
+                    + playlist_id
+                )
+
+                # Set extract_flat to True to avoid enumerating/downloading playlist entries
+                # and ensure we only get playlist-level metadata.
+                old_extract_flat = ydl.params.get("extract_flat")
+                old_playlist_items = ydl.params.get("playlist_items")
+
+                try:
+                    ydl.params["extract_flat"] = True
+                    # Setting playlist_items to a single entry that doesn't exist
+                    # or an empty range might be an alternative,
+                    # but extract_flat=True is typically sufficient for metadata.
+                    # We will ensure no items are fetched.
+                    ydl.params["playlist_items"] = "0"
+
+                    info = extract_with_retry(
+                        ydl,
+                        playlist_url,
+                        download=False,
+                    )
+
+                finally:
+                    if old_extract_flat is None:
+                        ydl.params.pop("extract_flat", None)
+                    else:
+                        ydl.params["extract_flat"] = old_extract_flat
+                    
+                    if old_playlist_items is None:
+                        ydl.params.pop("playlist_items", None)
+                    else:
+                        ydl.params["playlist_items"] = old_playlist_items
+
+                send({
+                    "ok": True,
+                    "data": info,
+                })
+
+                del info
+
+                continue
+
+            if cmd == "playlist_surface_metadata":
+
+                playlist_id = req["playlist_id"]
+
+                playlist_url = (
+                    "https://www.youtube.com/playlist?list="
+                    + playlist_id
+                )
+
+                old_extract_flat = ydl.params.get("extract_flat")
+
+                try:
+                    ydl.params["extract_flat"] = True
+
+                    info = extract_with_retry(
+                        ydl,
+                        playlist_url,
+                        download=False,
+                    )
+
+                finally:
+                    if old_extract_flat is None:
+                        ydl.params.pop("extract_flat", None)
+                    else:
+                        ydl.params["extract_flat"] = old_extract_flat
+
+                send({
+                    "ok": True,
+                    "data": info,
+                })
+
+                del info
+
+                continue
+
             if cmd == "warmup":
                 extract_with_retry(ydl, WARMUP_URL, download=False)
                 send({"ok": True})

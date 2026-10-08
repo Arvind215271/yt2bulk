@@ -9,10 +9,10 @@ import (
 
 func RunStrategyA(ctx context.Context, client *ytdlp.Client, videoIDs []string) (BenchmarkResult, error) {
 	start := time.Now()
-	
+
 	// Implementation: Loop and call GetVideo
 	for _, id := range videoIDs {
-		_, _ = client.GetVideo(ctx, id)
+		_, _ = client.GetVideo(ctx, id, nil)
 	}
 
 	return BenchmarkResult{

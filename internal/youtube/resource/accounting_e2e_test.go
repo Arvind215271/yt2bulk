@@ -34,7 +34,7 @@ func (m *e2eMockMetaProvider) GetVideo(ctx context.Context, videoID string, st *
 	return youtube.Video{ID: videoID, Title: "Video " + videoID}, nil
 }
 
-func (m *e2eMockMetaProvider) GetPlaylistItems(ctx context.Context, playlistID string, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+func (m *e2eMockMetaProvider) GetPlaylistItems(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
 	if m.getPlaylistItemsFunc != nil {
 		return m.getPlaylistItemsFunc(ctx, playlistID, st)
 	}

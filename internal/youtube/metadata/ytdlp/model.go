@@ -50,15 +50,30 @@ type SubtitleFormat struct {
 }
 
 type YTPlaylistOutput struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	Description string            `json:"description"`
-	Channel     string            `json:"channel"`
-	ChannelID   string            `json:"channel_id"`
-	Thumbnail   string            `json:"thumbnail"`
-	Tags        []string          `json:"tags"`
-	Uploader    string            `json:"uploader"`
-	Entries     []YTPlaylistEntry `json:"entries"`
+	ID            string            `json:"id"`
+	Title         string            `json:"title"`
+	Description   string            `json:"description"`
+	Channel       string            `json:"channel"`
+	ChannelID     string            `json:"channel_id"`
+	Thumbnail     string            `json:"thumbnail"`
+	Tags          []string          `json:"tags"`
+	WebpageURL    string            `json:"webpage_url"`
+	Uploader      string            `json:"uploader"`
+	PlaylistCount int               `json:"playlist_count"`
+	Entries       []YTPlaylistEntry `json:"entries"`
+}
+
+type PlaylistSurfaceMetadata struct {
+	ID            string   `json:"id"`
+	Title         string   `json:"title"`
+	Description   string   `json:"description"`
+	Channel       string   `json:"channel"`
+	ChannelID     string   `json:"channel_id"`
+	Thumbnail     string   `json:"thumbnail"`
+	Tags          []string `json:"tags"`
+	WebpageURL    string   `json:"webpage_url"`
+	Uploader      string   `json:"uploader"`
+	PlaylistCount int      `json:"playlist_count"`
 }
 
 type YTPlaylistEntry struct {

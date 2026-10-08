@@ -11,31 +11,34 @@ func TestMetadataStats_Add(t *testing.T) {
 	}
 
 	s.Add(MetadataStats{
-		Attempts:        10,
-		Successes:       8,
-		Failures:        2,
-		CacheHits:       5,
-		CacheMisses:     5,
-		UpstreamFetches: 5,
-		YTDLPRequests:   4,
-		APIRequests:     1,
-		Fallbacks:       1,
+		Attempts:                 10,
+		Successes:                8,
+		Failures:                 2,
+		CacheHits:                5,
+		CacheMisses:              5,
+		UpstreamFetches:          5,
+		EstimatedUpstreamFetches: 2,
+		YTDLPRequests:            4,
+		APIRequests:              1,
+		Fallbacks:                1,
 	})
 
 	s.Add(MetadataStats{
-		Attempts:        5,
-		Successes:       5,
-		Failures:        0,
-		CacheHits:       2,
-		CacheMisses:     3,
-		UpstreamFetches: 3,
-		YTDLPRequests:   2,
-		APIRequests:     1,
-		Fallbacks:       0,
+		Attempts:                 5,
+		Successes:                5,
+		Failures:                 0,
+		CacheHits:                2,
+		CacheMisses:              3,
+		UpstreamFetches:          3,
+		EstimatedUpstreamFetches: 1,
+		YTDLPRequests:            2,
+		APIRequests:              1,
+		Fallbacks:                0,
 	})
 
 	if s.Attempts != 15 || s.Successes != 13 || s.Failures != 2 ||
 		s.CacheHits != 7 || s.CacheMisses != 8 || s.UpstreamFetches != 8 ||
+		s.EstimatedUpstreamFetches != 3 ||
 		s.YTDLPRequests != 6 || s.APIRequests != 2 || s.Fallbacks != 1 {
 		t.Errorf("unexpected aggregated MetadataStats: %+v", s)
 	}
@@ -48,31 +51,34 @@ func TestSubtitleStats_Add(t *testing.T) {
 	}
 
 	s.Add(SubtitleStats{
-		Attempts:          6,
-		Successes:         5,
-		Failures:          1,
-		CacheHits:         3,
-		CacheMisses:       3,
-		UpstreamFetches:   3,
-		Fallbacks:         1,
-		ManualRequests:    2,
-		AutomaticRequests: 4,
+		Attempts:                 6,
+		Successes:                5,
+		Failures:                 1,
+		CacheHits:                3,
+		CacheMisses:              3,
+		UpstreamFetches:          3,
+		PotentialSubtitleFetches: 1,
+		Fallbacks:                1,
+		ManualRequests:           2,
+		AutomaticRequests:        4,
 	})
 
 	s.Add(SubtitleStats{
-		Attempts:          4,
-		Successes:         4,
-		Failures:          0,
-		CacheHits:         1,
-		CacheMisses:       3,
-		UpstreamFetches:   3,
-		Fallbacks:         0,
-		ManualRequests:    1,
-		AutomaticRequests: 3,
+		Attempts:                 4,
+		Successes:                4,
+		Failures:                 0,
+		CacheHits:                1,
+		CacheMisses:              3,
+		UpstreamFetches:          3,
+		PotentialSubtitleFetches: 2,
+		Fallbacks:                0,
+		ManualRequests:           1,
+		AutomaticRequests:        3,
 	})
 
 	if s.Attempts != 10 || s.Successes != 9 || s.Failures != 1 ||
 		s.CacheHits != 4 || s.CacheMisses != 6 || s.UpstreamFetches != 6 ||
+		s.PotentialSubtitleFetches != 3 ||
 		s.Fallbacks != 1 || s.ManualRequests != 3 || s.AutomaticRequests != 7 {
 		t.Errorf("unexpected aggregated SubtitleStats: %+v", s)
 	}

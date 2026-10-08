@@ -77,7 +77,7 @@ func BenchmarkPythonPool(ctx context.Context, playlistID string, outputDir strin
 
 	for _, e := range flat.Entries {
 		loggerInstance.Printf("Submitting videoID=%s to worker", e.ID)
-		data, err := pool.GetVideo(ctx, e.ID)
+		data, err := pool.GetVideo(ctx, e.ID, nil)
 		if err != nil {
 			loggerInstance.Printf("Error processing video %s: %v", e.ID, err)
 			continue

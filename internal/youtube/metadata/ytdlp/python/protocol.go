@@ -18,6 +18,18 @@ type PlaylistRequest struct {
 	PlaylistID string          `json:"playlist_id"`
 }
 
+type PlaylistMetadataRequest struct {
+	Ctx        context.Context `json:"-"`
+	Cmd        string          `json:"cmd"`
+	PlaylistID string          `json:"playlist_id"`
+}
+
+type PlaylistSurfaceMetadataRequest struct {
+	Ctx        context.Context `json:"-"`
+	Cmd        string          `json:"cmd"`
+	PlaylistID string          `json:"playlist_id"`
+}
+
 type WorkerResponse struct {
 	Ok   bool           `json:"ok"`
 	Data map[string]any `json:"data"`

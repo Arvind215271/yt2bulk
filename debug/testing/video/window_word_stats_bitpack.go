@@ -101,7 +101,7 @@ func RunWindowFingerprint(video youtube.Video) VideoTestResult {
 	// -----------------------------
 	var b strings.Builder
 
-	fmt.Fprintf(&b, "WS=%d\nD=%d\n\n", windowSize, len(wordToID))
+	fmt.Fprintf(&b, "WS=%d\nD=%d\n\n", int(windowSize), len(wordToID))
 
 	// 🔥 CODEBOOK (REQUIRED FOR RECONSTRUCTION)
 	b.WriteString("C:")

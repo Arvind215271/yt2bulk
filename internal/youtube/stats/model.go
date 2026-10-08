@@ -1,15 +1,16 @@
 package stats
 
 type MetadataStats struct {
-	Attempts        int
-	Successes       int
-	Failures        int
-	CacheHits       int
-	CacheMisses     int
-	UpstreamFetches int
-	YTDLPRequests   int
-	APIRequests     int
-	Fallbacks       int
+	Attempts                 int
+	Successes                int
+	Failures                 int
+	CacheHits                int
+	CacheMisses              int
+	UpstreamFetches          int
+	EstimatedUpstreamFetches int
+	YTDLPRequests            int
+	APIRequests              int
+	Fallbacks                int
 }
 
 func (s *MetadataStats) Add(other MetadataStats) {
@@ -19,21 +20,23 @@ func (s *MetadataStats) Add(other MetadataStats) {
 	s.CacheHits += other.CacheHits
 	s.CacheMisses += other.CacheMisses
 	s.UpstreamFetches += other.UpstreamFetches
+	s.EstimatedUpstreamFetches += other.EstimatedUpstreamFetches
 	s.YTDLPRequests += other.YTDLPRequests
 	s.APIRequests += other.APIRequests
 	s.Fallbacks += other.Fallbacks
 }
 
 type SubtitleStats struct {
-	Attempts          int
-	Successes         int
-	Failures          int
-	CacheHits         int
-	CacheMisses       int
-	UpstreamFetches   int
-	Fallbacks         int
-	ManualRequests    int
-	AutomaticRequests int
+	Attempts                 int
+	Successes                int
+	Failures                 int
+	CacheHits                int
+	CacheMisses              int
+	UpstreamFetches          int
+	PotentialSubtitleFetches int
+	Fallbacks                int
+	ManualRequests           int
+	AutomaticRequests        int
 }
 
 func (s *SubtitleStats) Add(other SubtitleStats) {
@@ -43,6 +46,7 @@ func (s *SubtitleStats) Add(other SubtitleStats) {
 	s.CacheHits += other.CacheHits
 	s.CacheMisses += other.CacheMisses
 	s.UpstreamFetches += other.UpstreamFetches
+	s.PotentialSubtitleFetches += other.PotentialSubtitleFetches
 	s.Fallbacks += other.Fallbacks
 	s.ManualRequests += other.ManualRequests
 	s.AutomaticRequests += other.AutomaticRequests

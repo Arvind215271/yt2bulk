@@ -21,7 +21,8 @@ import (
 )
 
 type mockMetaProvider struct {
-	getVideoFunc func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error)
+	getVideoFunc         func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error)
+	getPlaylistItemsFunc func(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
 }
 
 func (m *mockMetaProvider) GetVideo(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error) {
@@ -30,7 +31,10 @@ func (m *mockMetaProvider) GetVideo(ctx context.Context, videoID string, st *sta
 	}
 	return youtube.Video{}, nil
 }
-func (m *mockMetaProvider) GetPlaylistItems(ctx context.Context, playlistID string, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+func (m *mockMetaProvider) GetPlaylistItems(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+	if m.getPlaylistItemsFunc != nil {
+		return m.getPlaylistItemsFunc(ctx, playlistID, limit, st)
+	}
 	return nil, nil
 }
 func (m *mockMetaProvider) GetPlaylistMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error) {

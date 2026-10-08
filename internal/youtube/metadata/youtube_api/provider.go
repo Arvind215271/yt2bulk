@@ -104,6 +104,7 @@ func (p *Provider) GetVideo(
 func (p *Provider) GetPlaylistItems(
 	ctx context.Context,
 	playlistID string,
+	limit int,
 	st *stats.MetadataStats,
 ) ([]youtube.PlaylistItem, error) {
 	if st != nil {
@@ -114,6 +115,10 @@ func (p *Provider) GetPlaylistItems(
 	items, err := p.client.GetPlaylistItems(ctx, playlistID)
 	if err != nil {
 		return nil, err
+	}
+
+	if limit > 0 && len(items) > limit {
+		items = items[:limit]
 	}
 
 	result := make([]youtube.PlaylistItem, 0, len(items))

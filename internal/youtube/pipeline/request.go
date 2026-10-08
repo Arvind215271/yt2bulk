@@ -34,4 +34,7 @@ type Request struct {
 	// Signal request for signal analysis on a transcript.
 	// Owned by the signal package; validation happens there.
 	Signal *signal.SignalRequest
+
+	// Limit for bounded resource enumeration.
+	Limit int
 }

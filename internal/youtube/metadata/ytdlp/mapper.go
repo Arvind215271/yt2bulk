@@ -88,12 +88,19 @@ func mapTracks(raw map[string][]SubtitleFormat) []subtitle.SubtitleTrack {
 
 func MapPlaylist(meta YTPlaylistOutput) youtube.Playlist {
 	var thumbnails []youtube.Thumbnail
+	// Map primary thumbnail
 	if meta.Thumbnail != "" {
 		thumbnails = append(thumbnails, youtube.Thumbnail{
 			URL: meta.Thumbnail,
 		})
 	}
-	return youtube.Playlist{
+
+	itemCount := meta.PlaylistCount
+	if itemCount == 0 {
+		itemCount = len(meta.Entries)
+	}
+
+	playlist := youtube.Playlist{
 		ID:           meta.ID,
 		Title:        meta.Title,
 		Description:  meta.Description,
@@ -101,6 +108,82 @@ func MapPlaylist(meta YTPlaylistOutput) youtube.Playlist {
 		ChannelID:    meta.ChannelID,
 		Thumbnails:   thumbnails,
 		Tags:         meta.Tags,
-		ItemCount:    len(meta.Entries),
+		ItemCount:    itemCount,
 	}
+
+	// Map entries as lightweight items
+	for _, entry := range meta.Entries {
+		item := youtube.PlaylistItem{
+			VideoID:     entry.ID,
+			Title:       entry.Title,
+			Description: entry.Description,
+			// Duration is in seconds for entries in YTPlaylistEntry
+			Duration:     time.Duration(entry.Duration) * time.Second,
+			ViewCount:    entry.ViewCount,
+			ChannelID:    entry.ChannelID,
+			ChannelTitle: entry.Channel,
+			URL:          entry.WebpageURL,
+		}
+
+		// Map thumbnails for items
+		for _, t := range entry.Thumbnails {
+			item.Thumbnails = append(item.Thumbnails, youtube.Thumbnail{
+				URL:    t.URL,
+				Width:  t.Width,
+				Height: t.Height,
+			})
+		}
+
+		playlist.Items = append(playlist.Items, item)
+	}
+
+	return playlist
+}
+
+func MapToPlaylistSurfaceMetadata(data map[string]any) PlaylistSurfaceMetadata {
+	return PlaylistSurfaceMetadata{
+		ID:            getString(data, "id"),
+		Title:         getString(data, "title"),
+		Description:   getString(data, "description"),
+		Channel:       getString(data, "channel"),
+		ChannelID:     getString(data, "channel_id"),
+		Thumbnail:     getString(data, "thumbnail"),
+		Tags:          getStringSlice(data, "tags"),
+		WebpageURL:    getString(data, "webpage_url"),
+		Uploader:      getString(data, "uploader"),
+		PlaylistCount: getInt(data, "playlist_count"),
+	}
+}
+
+func getString(data map[string]any, key string) string {
+	if val, ok := data[key].(string); ok {
+		return val
+	}
+	return ""
+}
+
+func getStringSlice(data map[string]any, key string) []string {
+	if val, ok := data[key].([]string); ok {
+		return val
+	}
+	if val, ok := data[key].([]any); ok {
+		res := make([]string, len(val))
+		for i, v := range val {
+			if s, ok := v.(string); ok {
+				res[i] = s
+			}
+		}
+		return res
+	}
+	return nil
+}
+
+func getInt(data map[string]any, key string) int {
+	if val, ok := data[key].(int); ok {
+		return val
+	}
+	if val, ok := data[key].(float64); ok {
+		return int(val)
+	}
+	return 0
 }

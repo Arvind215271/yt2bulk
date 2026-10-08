@@ -161,6 +161,82 @@ func (p *SinglePool) GetPlaylist(
 	return result, nil
 }
 
+func (p *SinglePool) GetPlaylistMetadata(
+	ctx context.Context,
+	playlistID string,
+	st *stats.MetadataStats,
+) (map[string]any, error) {
+	if st != nil {
+		st.YTDLPRequests++
+	}
+	key := p.cache.PlaylistMetadataKey()
+
+	data, err := p.cache.Get(playlistID, key)
+	if err == nil {
+		var result map[string]any
+
+		if err := json.Unmarshal(data, &result); err == nil {
+			if st != nil {
+				st.CacheHits++
+			}
+			return result, nil
+		}
+	}
+
+	if st != nil {
+		st.CacheMisses++
+		st.UpstreamFetches++
+	}
+
+	result, err := p.manager.GetPlaylistMetadata(ctx, playlistID)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonData, _ := json.Marshal(result)
+	_ = p.cache.Save(playlistID, key, jsonData)
+
+	return result, nil
+}
+
+func (p *SinglePool) GetPlaylistSurfaceMetadata(
+	ctx context.Context,
+	playlistID string,
+	st *stats.MetadataStats,
+) (map[string]any, error) {
+	if st != nil {
+		st.YTDLPRequests++
+	}
+	key := p.cache.PlaylistSurfaceMetadataKey()
+
+	data, err := p.cache.Get(playlistID, key)
+	if err == nil {
+		var result map[string]any
+
+		if err := json.Unmarshal(data, &result); err == nil {
+			if st != nil {
+				st.CacheHits++
+			}
+			return result, nil
+		}
+	}
+
+	if st != nil {
+		st.CacheMisses++
+		st.UpstreamFetches++
+	}
+
+	result, err := p.manager.GetPlaylistSurfaceMetadata(ctx, playlistID)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonData, _ := json.Marshal(result)
+	_ = p.cache.Save(playlistID, key, jsonData)
+
+	return result, nil
+}
+
 func (p *SinglePool) GetSubtitle(
 	ctx context.Context,
 	videoID,

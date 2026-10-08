@@ -20,10 +20,11 @@ func ProcessPlaylist(
 	pipelineService *pipeline.Service,
 	playlistID string,
 	req *pipeline.Request,
+	limit int,
 	concurrency int,
 	logger *logger.Logger,
 ) *youtube.Playlist {
-	playlist, _ := ProcessPlaylistWithStats(ctx, metadataService, pipelineService, playlistID, req, concurrency, logger)
+	playlist, _ := ProcessPlaylistWithStats(ctx, metadataService, pipelineService, playlistID, req, limit, concurrency, logger)
 	return playlist
 }
 
@@ -34,6 +35,7 @@ func ProcessPlaylistWithStats(
 	pipelineService *pipeline.Service,
 	playlistID string,
 	req *pipeline.Request,
+	limit int,
 	concurrency int,
 	logger *logger.Logger,
 ) (*youtube.Playlist, stats.ResourceStats) {
@@ -55,13 +57,13 @@ func ProcessPlaylistWithStats(
 	}
 
 	// 1. Fetch playlist items with stats
-	items, metaStats, err := metadataService.GetPlaylistItemsWithStats(ctx, playlistID, metadata.ProviderYTDLP)
+	items, metaStats, err := metadataService.GetPlaylistItemsWithStats(ctx, playlistID, limit, metadata.ProviderYTDLP)
 	resourceStats.Metadata.Add(metaStats)
 	if err != nil {
 		if ctx.Err() != nil && logger != nil {
 			logger.Warn("playlist items fetch failed during cancellation (ytdlp)", "playlistID", playlistID, "error", err)
 		}
-		items, metaStats, err = metadataService.GetPlaylistItemsWithStats(ctx, playlistID, metadata.ProviderAPI)
+		items, metaStats, err = metadataService.GetPlaylistItemsWithStats(ctx, playlistID, limit, metadata.ProviderAPI)
 		resourceStats.Metadata.Add(metaStats)
 		if err != nil {
 			if ctx.Err() != nil && logger != nil {

@@ -69,6 +69,7 @@ func (s *Service) GetPlaylistMetadata(
 func (s *Service) GetPlaylistItemsWithStats(
 	ctx context.Context,
 	playlistID string,
+	limit int,
 	providerType ProviderType,
 ) ([]youtube.PlaylistItem, stats.MetadataStats, error) {
 	var st stats.MetadataStats
@@ -79,15 +80,15 @@ func (s *Service) GetPlaylistItemsWithStats(
 
 	useAPI := (providerType == ProviderAPI)
 	if useAPI && s.apiProvider != nil {
-		items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, &st)
+		items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
 	} else if s.ytdlpProvider != nil {
-		items, err = s.ytdlpProvider.GetPlaylistItems(ctx, playlistID, &st)
+		items, err = s.ytdlpProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
 		if err != nil && s.apiProvider != nil {
 			st.Fallbacks++
-			items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, &st)
+			items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
 		}
 	} else if s.apiProvider != nil {
-		items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, &st)
+		items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
 	} else {
 		err = youtube.Err.Playlist.FetchFailed()
 	}
@@ -104,9 +105,10 @@ func (s *Service) GetPlaylistItemsWithStats(
 func (s *Service) GetPlaylistItems(
 	ctx context.Context,
 	playlistID string,
+	limit int,
 	providerType ProviderType,
 ) ([]youtube.PlaylistItem, error) {
-	items, _, err := s.GetPlaylistItemsWithStats(ctx, playlistID, providerType)
+	items, _, err := s.GetPlaylistItemsWithStats(ctx, playlistID, limit, providerType)
 	return items, err
 }
 

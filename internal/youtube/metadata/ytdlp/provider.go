@@ -32,22 +32,35 @@ func (p *Provider) GetVideo(ctx context.Context, videoID string, st *stats.Metad
 }
 
 func (p *Provider) GetPlaylistMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error) {
-	p.logger.Debug("getting playlist from ytdlp provider", "playlistID", playlistID)
-	meta, err := p.client.GetPlaylist(ctx, playlistID, st)
+	p.logger.Debug("getting playlist metadata from ytdlp provider", "playlistID", playlistID)
+	meta, err := p.client.GetPlaylistMetadata(ctx, playlistID, st)
 	if err != nil {
-		p.logger.Error("failed to get playlist from ytdlp provider", "error", err, "playlistID", playlistID)
+		p.logger.Error("failed to get playlist metadata from ytdlp provider", "error", err, "playlistID", playlistID)
 		return youtube.Playlist{}, err
 	}
 	return MapPlaylist(meta), nil
 }
 
-func (p *Provider) GetPlaylistItems(ctx context.Context, playlistID string, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+func (p *Provider) GetPlaylistSurfaceMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (PlaylistSurfaceMetadata, error) {
+	p.logger.Debug("getting playlist surface metadata from ytdlp provider", "playlistID", playlistID)
+	meta, err := p.client.GetPlaylistSurfaceMetadata(ctx, playlistID, st)
+	if err != nil {
+		p.logger.Error("failed to get playlist surface metadata from ytdlp provider", "error", err, "playlistID", playlistID)
+		return PlaylistSurfaceMetadata{}, err
+	}
+	return meta, nil
+}
+
+func (p *Provider) GetPlaylistItems(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
 	meta, err := p.client.GetPlaylist(ctx, playlistID, st)
 	if err != nil {
 		return nil, err
 	}
 
 	result := make([]youtube.PlaylistItem, 0, len(meta.Entries))
+	if limit > 0 && len(meta.Entries) > limit {
+		meta.Entries = meta.Entries[:limit]
+	}
 	for i, entry := range meta.Entries {
 		var thumbnails []youtube.Thumbnail
 		for _, th := range entry.Thumbnails {

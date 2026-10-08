@@ -372,7 +372,7 @@ func TestCancellation_SuccessfulOperationFollowedByCancellation(t *testing.T) {
 
 func TestCancellation_PlaylistCancellation(t *testing.T) {
 	metaProv := &mockMetaProvider{
-		getPlaylistItemsFunc: func(ctx context.Context, playlistID string, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+		getPlaylistItemsFunc: func(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
 			if st != nil {
 				st.YTDLPRequests++
 				st.Successes++

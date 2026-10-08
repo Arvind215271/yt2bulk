@@ -122,6 +122,7 @@ func (s *Service) ProcessResourcesWithStats(
 					s.pipelineService,
 					inp.ID,
 					req,
+					req.Limit,
 					concurrency,
 					s.logger,
 				)

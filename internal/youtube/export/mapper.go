@@ -1,7 +1,6 @@
 package export
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -70,9 +69,6 @@ func exportStruct(v any, planner *fields.Planner) (ExportData, error) {
 		if exportAll || planner.Has(key) {
 			// firstly, val store the actual data. Then we need to know which field to get the data from. Interface convert it to any data type. That is all
 			out[key] = val.Field(i).Interface()
-		} else {
-			// Log for debugging the field filtering
-			fmt.Printf("DEBUG: Field %s not in planner, key: %s\n", structField.Name, key)
 		}
 	}
 

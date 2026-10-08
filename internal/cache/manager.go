@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"sort"
@@ -28,6 +29,15 @@ func (m *Manager) GetPath(id, filename string) string {
 	return filepath.Join(m.config.CacheDir, id, filename)
 }
 
+func (m *Manager) Exists(id, filename string) bool {
+	path := m.GetPath(id, filename)
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return time.Since(info.ModTime()) <= time.Duration(m.config.TTLDays)*24*time.Hour
+}
+
 func (m *Manager) Get(id, filename string) ([]byte, error) {
 	path := m.GetPath(id, filename)
 	info, err := os.Stat(path)
@@ -49,11 +59,54 @@ func (m *Manager) Save(id, filename string, data []byte) error {
 }
 
 func (m *Manager) VideoKey() string {
-	return "metadata." +  ".json"
+	return "metadata." + ".json"
+}
+
+// HasMetadata checks if valid metadata exists for a given video ID.
+func (m *Manager) HasMetadata(id string) bool {
+	return m.Exists(id, m.VideoKey())
+}
+
+// HasSubtitle checks if any subtitle file exists for a given video ID.
+func (m *Manager) HasSubtitle(id string) bool {
+	dir := filepath.Join(m.config.CacheDir, id)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return false
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() && len(entry.Name()) > 10 && entry.Name()[0:10] == "subtitles." {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *Manager) PlaylistKey() string {
 	return "playlist." + ".json"
+}
+
+func (m *Manager) PlaylistMetadataKey() string {
+	return "playlist_metadata.json"
+}
+
+func (m *Manager) GetPlaylistVideoIDs(playlistID string) ([]string, bool) {
+	data, err := m.Get(playlistID, m.PlaylistMetadataKey())
+	if err != nil {
+		return nil, false
+	}
+
+	var result struct {
+		VideoIDs []string `json:"video_ids"`
+	}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, false
+	}
+	return result.VideoIDs, true
+}
+
+func (m *Manager) PlaylistSurfaceMetadataKey() string {
+	return "playlist_surface_metadata.json"
 }
 
 func (m *Manager) SubtitleKey(subType, language, format string) string {
@@ -63,9 +116,6 @@ func (m *Manager) SubtitleKey(subType, language, format string) string {
 func (m *Manager) SubtitlePath(subType string) string {
 	return "subtitles." + subType
 }
-
-
-
 
 // Cleanup removes expired and excess cache entries.
 //

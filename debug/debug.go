@@ -10,15 +10,15 @@ import (
 	"strings"
 
 	"github.com/Arvind215271/askito/internal/cache"
-	"github.com/Arvind215271/askito/internal/youtube/export"
 	"github.com/Arvind215271/askito/internal/logger"
 	"github.com/Arvind215271/askito/internal/youtube"
+	"github.com/Arvind215271/askito/internal/youtube/description"
+	"github.com/Arvind215271/askito/internal/youtube/export"
+	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
 	"github.com/Arvind215271/askito/internal/youtube/metadata"
 	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp/python"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/description"
 	"github.com/Arvind215271/askito/internal/youtube/subtitle"
+	"github.com/Arvind215271/askito/internal/youtube/transcript"
 
 	debugvideo "github.com/Arvind215271/askito/debug/testing/video"
 )
@@ -176,9 +176,10 @@ func debugPlaylist(
 		return
 	}
 
-	items, err := youtubeSvc.GetPlaylistItems(
+	items, _, err := youtubeSvc.GetPlaylistItemsWithStats(
 		ctx,
 		playlistID,
+		50,
 		metadata.ProviderAPI,
 	)
 	if err != nil {
@@ -187,7 +188,7 @@ func debugPlaylist(
 	}
 
 	for _, item := range items {
-		video, err := youtubeSvc.GetVideo(ctx, item.VideoID, metadata.ProviderAPI)
+		video, _, err := youtubeSvc.GetVideoWithStats(ctx, item.VideoID, metadata.ProviderAPI)
 		if err != nil {
 			log.Warn("failed to fetch video", "video_id", item.VideoID, "error", err)
 			continue
@@ -322,7 +323,6 @@ func debugPlaylist(
 		)
 	}
 
-
 	aiText := buildPlaylistAIText(
 		playlist,
 	)
@@ -384,7 +384,7 @@ func debugVideo(
 	fmt.Println("Duration   :", video.Duration)
 	fmt.Println("Views      :", video.ViewCount)
 	fmt.Println("Channel    :", video.ChannelTitle)
-	
+
 	// Transcript fetch
 	subService := subtitle.NewSubtitleService(cacheManager, log, pythonPool)
 	result, err := subService.DownloadSubtitle(ctx, subtitle.DownloadRequest{
@@ -474,10 +474,9 @@ func debugVideo(
 
 	err = debugvideo.DebugWindowTranscript(video)
 	if err != nil {
-		log.Error("Window Word Stats Signal failed", err)
+		log.Error("Window Word Stats Signal failed", "error", err)
 	}
 }
-
 
 func printSize(
 	name string,
@@ -492,7 +491,6 @@ func printSize(
 		float64(len(b))/1024,
 	)
 }
-
 
 func saveFile(
 	path string,
@@ -512,7 +510,6 @@ func saveFile(
 		0644,
 	)
 }
-
 
 func buildPlaylistAIText(
 	playlist youtube.Playlist,

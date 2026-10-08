@@ -23,7 +23,7 @@ import (
 
 type mockMetaProvider struct {
 	getVideoFunc         func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error)
-	getPlaylistItemsFunc func(ctx context.Context, playlistID string, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
+	getPlaylistItemsFunc func(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
 	getPlaylistMetaFunc  func(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error)
 }
 
@@ -34,9 +34,9 @@ func (m *mockMetaProvider) GetVideo(ctx context.Context, videoID string, st *sta
 	return youtube.Video{ID: videoID, Title: "Default Video"}, nil
 }
 
-func (m *mockMetaProvider) GetPlaylistItems(ctx context.Context, playlistID string, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+func (m *mockMetaProvider) GetPlaylistItems(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
 	if m.getPlaylistItemsFunc != nil {
-		return m.getPlaylistItemsFunc(ctx, playlistID, st)
+		return m.getPlaylistItemsFunc(ctx, playlistID, limit, st)
 	}
 	return []youtube.PlaylistItem{
 		{VideoID: "vid1", Title: "Playlist Video 1", Position: 1},
@@ -113,7 +113,7 @@ func TestProcessVideoWithStats(t *testing.T) {
 
 func TestProcessPlaylistWithStats(t *testing.T) {
 	metaProv := &mockMetaProvider{
-		getPlaylistItemsFunc: func(ctx context.Context, playlistID string, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+		getPlaylistItemsFunc: func(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
 			if st != nil {
 				st.YTDLPRequests++
 				st.Successes++

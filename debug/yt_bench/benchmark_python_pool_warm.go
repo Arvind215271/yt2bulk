@@ -84,7 +84,7 @@ func BenchmarkPythonPoolWarm(ctx context.Context, playlistID string, outputDir s
 
 	for _, e := range flat.Entries {
 		loggerInstance.Printf("Submitting videoID=%s to worker", e.ID)
-		data, err := pool.GetVideo(ctx, e.ID)
+		data, err := pool.GetVideo(ctx, e.ID, nil)
 		if err != nil {
 			loggerInstance.Printf("Error processing video %s: %v", e.ID, err)
 			continue
@@ -159,32 +159,32 @@ func BenchmarkPythonPoolWarm(ctx context.Context, playlistID string, outputDir s
 	}
 
 	res := BenchmarkResult{
-		PlaylistID:            playlistID,
-		Strategy:              fmt.Sprintf("Python Pool Warm (%d)", workers),
-		PlaylistSize:          len(flat.Entries),
-		TotalExecutionTime:    benchmarkEnd.Sub(benchmarkStart),
-		StartedAt:             benchmarkStart,
-		ProcessesSpawned:      1 + workers + len(flat.Entries),
-		PeakMemoryUsage:       atomic.LoadUint64(&peakMemory),
-		FlatPlaylistFetchTime: flatFetchEnd.Sub(flatFetchStart),
+		PlaylistID:             playlistID,
+		Strategy:               fmt.Sprintf("Python Pool Warm (%d)", workers),
+		PlaylistSize:           len(flat.Entries),
+		TotalExecutionTime:     benchmarkEnd.Sub(benchmarkStart),
+		StartedAt:              benchmarkStart,
+		ProcessesSpawned:       1 + workers + len(flat.Entries),
+		PeakMemoryUsage:        atomic.LoadUint64(&peakMemory),
+		FlatPlaylistFetchTime:  flatFetchEnd.Sub(flatFetchStart),
 		VideoMetadataFetchTime: time.Duration(atomic.LoadInt64(&aggregateWorkerTime)), // Deprecated: aggregate time
-		DiskWriteTime:         time.Duration(atomic.LoadInt64(&diskWriteTime)),
-		WorkerSpawnTime:       workerSpawnEnd.Sub(workerSpawnStart),
-		WorkerWarmupTime:      warmupEnd.Sub(warmupStart),
+		DiskWriteTime:          time.Duration(atomic.LoadInt64(&diskWriteTime)),
+		WorkerSpawnTime:        workerSpawnEnd.Sub(workerSpawnStart),
+		WorkerWarmupTime:       warmupEnd.Sub(warmupStart),
 
 		// New detailed fields
-		BenchmarkStartedAt:      benchmarkStart,
-		BenchmarkFinishedAt:     benchmarkEnd,
-		FlatFetchStartedAt:      flatFetchStart,
-		FlatFetchFinishedAt:     flatFetchEnd,
-		WorkerSpawnStartedAt:    workerSpawnStart,
-		WorkerSpawnFinishedAt:   workerSpawnEnd,
-		MetadataDispatchStartedAt: dispatchStart,
+		BenchmarkStartedAt:         benchmarkStart,
+		BenchmarkFinishedAt:        benchmarkEnd,
+		FlatFetchStartedAt:         flatFetchStart,
+		FlatFetchFinishedAt:        flatFetchEnd,
+		WorkerSpawnStartedAt:       workerSpawnStart,
+		WorkerSpawnFinishedAt:      workerSpawnEnd,
+		MetadataDispatchStartedAt:  dispatchStart,
 		MetadataDispatchFinishedAt: dispatchEnd,
-		FirstWorkerStartedAt:    firstWorkerStart,
-		LastWorkerFinishedAt:    lastWorkerEnd,
-		DiskWriteStartedAt:      firstDiskWrite,
-		DiskWriteFinishedAt:     lastDiskWrite,
+		FirstWorkerStartedAt:       firstWorkerStart,
+		LastWorkerFinishedAt:       lastWorkerEnd,
+		DiskWriteStartedAt:         firstDiskWrite,
+		DiskWriteFinishedAt:        lastDiskWrite,
 
 		// Warmup timing
 		WarmupStartedAt:  warmupStart,

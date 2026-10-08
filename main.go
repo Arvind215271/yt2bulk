@@ -153,7 +153,7 @@ func main() {
 	)
 
 	subtitleService := ytSubtitle.NewSubtitleService(cacheManager, logger, pythonPool)
-	preflightService := preflight.NewService(youtubeService)
+	preflightService := preflight.NewService(youtubeService, cacheManager, logger)
 	transcriptService := ytTranscript.NewService()
 	signalService := ytSignal.NewSignalService()
 

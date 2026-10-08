@@ -52,7 +52,7 @@ func (c *SingleClient) GetPlaylist(
 	playlistID string,
 ) (map[string]any, error) {
 	c.logger.Debug(
-		"fetching playlist metadata",
+		"fetching playlist items",
 		"playlist_id", playlistID,
 	)
 
@@ -103,7 +103,133 @@ func (c *SingleClient) GetPlaylist(
 	}
 
 	c.logger.Debug(
+		"playlist items fetched",
+		"playlist_id", playlistID,
+	)
+
+	return resp.Data, nil
+}
+
+func (c *SingleClient) GetPlaylistMetadata(
+	ctx context.Context,
+	playlistID string,
+) (map[string]any, error) {
+	c.logger.Debug(
+		"fetching playlist metadata",
+		"playlist_id", playlistID,
+	)
+
+	req := PlaylistMetadataRequest{
+		Cmd:        "playlist_metadata",
+		PlaylistID: playlistID,
+	}
+
+	if err := c.worker.SendCommand(req); err != nil {
+		return nil, fmt.Errorf(
+			"send playlist metadata request for playlist %s: %w",
+			playlistID,
+			err,
+		)
+	}
+
+	respData, err := c.worker.ReceiveResponse()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"receive playlist metadata response for playlist %s: %w",
+			playlistID,
+			err,
+		)
+	}
+
+	var resp WorkerResponse
+
+	if err := json.Unmarshal(respData, &resp); err != nil {
+		return nil, fmt.Errorf(
+			"decode playlist metadata response for playlist %s: %w",
+			playlistID,
+			err,
+		)
+	}
+
+	if !resp.Ok {
+		c.logger.Warn(
+			"playlist metadata request failed",
+			"playlist_id", playlistID,
+			"error", resp.Err,
+		)
+
+		return nil, fmt.Errorf(
+			"worker playlist metadata error for playlist %s: %s",
+			playlistID,
+			resp.Err,
+		)
+	}
+
+	c.logger.Debug(
 		"playlist metadata fetched",
+		"playlist_id", playlistID,
+	)
+
+	return resp.Data, nil
+}
+
+func (c *SingleClient) GetPlaylistSurfaceMetadata(
+	ctx context.Context,
+	playlistID string,
+) (map[string]any, error) {
+	c.logger.Debug(
+		"fetching playlist surface metadata",
+		"playlist_id", playlistID,
+	)
+
+	req := PlaylistSurfaceMetadataRequest{
+		Cmd:        "playlist_metadata",
+		PlaylistID: playlistID,
+	}
+
+	if err := c.worker.SendCommand(req); err != nil {
+		return nil, fmt.Errorf(
+			"send playlist surface metadata request for playlist %s: %w",
+			playlistID,
+			err,
+		)
+	}
+
+	respData, err := c.worker.ReceiveResponse()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"receive playlist surface metadata response for playlist %s: %w",
+			playlistID,
+			err,
+		)
+	}
+
+	var resp WorkerResponse
+
+	if err := json.Unmarshal(respData, &resp); err != nil {
+		return nil, fmt.Errorf(
+			"decode playlist surface metadata response for playlist %s: %w",
+			playlistID,
+			err,
+		)
+	}
+
+	if !resp.Ok {
+		c.logger.Warn(
+			"playlist surface metadata request failed",
+			"playlist_id", playlistID,
+			"error", resp.Err,
+		)
+
+		return nil, fmt.Errorf(
+			"worker playlist surface metadata error for playlist %s: %s",
+			playlistID,
+			resp.Err,
+		)
+	}
+
+	c.logger.Debug(
+		"playlist surface metadata fetched",
 		"playlist_id", playlistID,
 	)
 

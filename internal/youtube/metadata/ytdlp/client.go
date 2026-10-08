@@ -98,3 +98,28 @@ func (c *Client) GetPlaylist(ctx context.Context, playlistID string, st *stats.M
 	err = json.Unmarshal(output, &meta)
 	return meta, err
 }
+
+func (c *Client) GetPlaylistSurfaceMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (PlaylistSurfaceMetadata, error) {
+	result, err := c.pool.GetPlaylistSurfaceMetadata(ctx, playlistID, st)
+	if err != nil {
+		return PlaylistSurfaceMetadata{}, err
+	}
+
+	return MapToPlaylistSurfaceMetadata(result), nil
+}
+
+func (c *Client) GetPlaylistMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (YTPlaylistOutput, error) {
+	result, err := c.pool.GetPlaylistMetadata(ctx, playlistID, st)
+	if err != nil {
+		return YTPlaylistOutput{}, err
+	}
+
+	output, err := json.Marshal(result)
+	if err != nil {
+		return YTPlaylistOutput{}, err
+	}
+
+	var meta YTPlaylistOutput
+	err = json.Unmarshal(output, &meta)
+	return meta, err
+}

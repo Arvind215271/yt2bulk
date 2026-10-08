@@ -284,6 +284,76 @@ func (m *WorkerManager) GetPlaylist(
 	return res.Result.(map[string]any), nil
 }
 
+func (m *WorkerManager) GetPlaylistMetadata(
+	ctx context.Context,
+	playlistID string,
+) (map[string]any, error) {
+	respCh := make(chan ManagerResponse, 1)
+
+	req := request{
+		execute: func(w *SingleClient) (any, error) {
+			return w.GetPlaylistMetadata(ctx, playlistID)
+		},
+		response: respCh,
+	}
+
+	m.mu.Lock()
+	if m.closing {
+		m.mu.Unlock()
+		return nil, ErrManagerClosed
+	}
+	m.mu.Unlock()
+
+	select {
+	case m.queue <- req:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+
+	res := <-respCh
+
+	if res.Err != nil {
+		return nil, res.Err
+	}
+
+	return res.Result.(map[string]any), nil
+}
+
+func (m *WorkerManager) GetPlaylistSurfaceMetadata(
+	ctx context.Context,
+	playlistID string,
+) (map[string]any, error) {
+	respCh := make(chan ManagerResponse, 1)
+
+	req := request{
+		execute: func(w *SingleClient) (any, error) {
+			return w.GetPlaylistSurfaceMetadata(ctx, playlistID)
+		},
+		response: respCh,
+	}
+
+	m.mu.Lock()
+	if m.closing {
+		m.mu.Unlock()
+		return nil, ErrManagerClosed
+	}
+	m.mu.Unlock()
+
+	select {
+	case m.queue <- req:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+
+	res := <-respCh
+
+	if res.Err != nil {
+		return nil, res.Err
+	}
+
+	return res.Result.(map[string]any), nil
+}
+
 func (m *WorkerManager) Close() error {
 	m.mu.Lock()
 	m.closing = true

@@ -48,7 +48,7 @@ func (h *Handler) ExpandPlaylistVideos(c *echo.Context) error {
 	}
 
 	ctx := (*c).Request().Context()
-	items, err := h.youtubeService.GetPlaylistItems(ctx, parsed.ID, providerType)
+	items, err := h.youtubeService.GetPlaylistItems(ctx, parsed.ID, 50, providerType)
 	if err != nil {
 		return Err.FetchFailed(err)
 	}

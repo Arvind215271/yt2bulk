@@ -17,6 +17,7 @@ type Provider interface {
 	GetPlaylistItems(
 		ctx context.Context,
 		playlistID string,
+		limit int,
 		st *stats.MetadataStats,
 	) ([]youtube.PlaylistItem, error)
 
