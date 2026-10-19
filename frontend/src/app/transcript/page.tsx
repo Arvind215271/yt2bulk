@@ -67,18 +67,18 @@ export default function TranscriptPage() {
   return (
     <div style={{ backgroundColor: theme.colors.bg, color: theme.colors.textMain, minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: theme.fonts.sans, width: '100%', margin: 0 }}>
       <Header />
-      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '2.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '1.5rem 1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Transcript Viewer</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Transcript Viewer</h1>
           <p style={{ color: theme.colors.textMuted, fontSize: '1.05rem' }}>
             Fetch raw JSON3/structured transcripts directly from YouTube videos using high-performance internal pipelines.
           </p>
         </div>
 
         <form onSubmit={handleFetchTranscript} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>Enter YouTube Links or IDs</h2>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>Enter YouTube Links or IDs</h2>
             <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem', marginBottom: '1rem' }}>
               Paste one or more video links or IDs (one per line):
             </p>
@@ -155,8 +155,8 @@ export default function TranscriptPage() {
         )}
 
         {output && (
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Transcript Result</h2>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Transcript Result</h2>
             <pre style={{
               backgroundColor: theme.colors.bg,
               border: `1px solid ${theme.colors.borderColor}`,

@@ -341,10 +341,10 @@ export default function SubtitlePage() {
   return (
     <div style={{ backgroundColor: theme.colors.bg, color: theme.colors.textMain, minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: theme.fonts.sans, width: '100%', margin: 0 }}>
       <Header />
-      <div style={{ width: '100%', maxWidth: '1150px', margin: '0 auto', padding: '2.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <div style={{ width: '100%', maxWidth: '1150px', margin: '0 auto', padding: '1.5rem 1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Subtitle Options & Multiset Selector</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Subtitle Options & Multiset Selector</h1>
           <p style={{ color: theme.colors.textMuted, fontSize: '1.05rem' }}>
             Inspect available subtitle tracks across your videos/playlists, sort by remaining coverage impact, and manage your fallback preference order by dragging and dropping.
           </p>
@@ -352,8 +352,8 @@ export default function SubtitlePage() {
 
         {/* Step 1: Input Links & Get Options */}
         <form onSubmit={handleFetchOptions} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>1. Enter YouTube Links or IDs</h2>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>1. Enter YouTube Links or IDs</h2>
             <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem', marginBottom: '1rem' }}>
               Paste video or playlist links (one per line) to aggregate subtitle options:
             </p>
@@ -430,10 +430,10 @@ export default function SubtitlePage() {
 
         {/* Step 2: Dedicated Selected Preferences Box (Draggable) */}
         {rawResponseData && (
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>2. Selected Subtitle Preferences Order (Drag & Drop)</h2>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.25rem' }}>2. Selected Subtitle Preferences Order (Drag & Drop)</h2>
                 <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem' }}>
                   Total Videos: <strong style={{ color: theme.colors.textMain }}>{allVideos.length}</strong> | Combined Coverage: <strong style={{ color: '#4caf50' }}>{coverageMetrics.coveredVideos} / {coverageMetrics.totalVideos} ({coverageMetrics.percentage}%)</strong>
                 </p>
@@ -561,10 +561,10 @@ export default function SubtitlePage() {
 
         {/* Step 3: Available Subtitle Options Grid (with live remaining impact count) */}
         {rawResponseData && (
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-wrap', gap: '1rem' }}>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>3. Available Subtitle Options (Live Coverage Impact)</h2>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.25rem' }}>3. Available Subtitle Options (Live Coverage Impact)</h2>
                 <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem' }}>
                   Click items to add or remove them. Remaining coverage updates live as you select preferences.
                 </p>
@@ -660,8 +660,8 @@ export default function SubtitlePage() {
 
         {/* Step 4: Configure & Download Subtitles */}
         {rawResponseData && (
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>4. Download Subtitles (ZIP Package)</h2>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>4. Download Subtitles (ZIP Package)</h2>
             <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
               Choose your format and trigger batch download of all matched subtitle files.
             </p>

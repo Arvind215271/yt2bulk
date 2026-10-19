@@ -287,6 +287,15 @@ export default function ExportPage() {
     }
   };
 
+  const handleCopy = () => {
+    if (!output) return;
+    navigator.clipboard.writeText(output).then(() => {
+      alert('Copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+  };
+
   const handleDownload = () => {
     if (!lastBlob) return;
     const url = URL.createObjectURL(lastBlob);
@@ -302,21 +311,21 @@ export default function ExportPage() {
   return (
     <div style={{ backgroundColor: theme.colors.bg, color: theme.colors.textMain, minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: theme.fonts.sans, width: '100%', margin: 0 }}>
       <Header />
-      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '2.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '1.5rem 1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Export YouTube Data</h1>
-          <p style={{ color: theme.colors.textMuted, fontSize: '1.05rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Export YouTube Data</h1>
+          <p style={{ color: theme.colors.textMuted, fontSize: '0.95rem' }}>
             Paste your YouTube video or playlist links below, choose the format and fields you want, and instantly export everything.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
           
           {/* Big Wide Central Box for Links */}
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>1. Paste your YouTube Links or IDs</h2>
-            <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem', marginBottom: '1rem' }}>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem' }}>1. Paste your YouTube Links or IDs</h2>
+            <p style={{ color: theme.colors.textMuted, fontSize: '0.85rem', marginBottom: '1rem' }}>
               Put as many links as you want here (videos, playlists, shorts), with each link on its own separate line:
             </p>
             <textarea
@@ -325,21 +334,21 @@ export default function ExportPage() {
               placeholder="https://www.youtube.com/watch?v=...&#10;https://www.youtube.com/playlist?list=...&#10;https://youtu.be/..."
               style={{
                 width: '100%',
-                minHeight: '220px',
+                minHeight: '150px',
                 backgroundColor: theme.colors.bg,
                 border: `1px solid ${theme.colors.borderColor}`,
                 borderRadius: '6px',
-                padding: '1.25rem',
+                padding: '1rem',
                 fontFamily: theme.fonts.mono,
-                fontSize: '0.95rem',
+                fontSize: '0.9rem',
                 color: theme.colors.textMain,
                 resize: 'vertical',
-                lineHeight: '1.6'
+                lineHeight: '1.5'
               }}
             />
 
-            <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: 600, color: theme.colors.textMuted }}>
+            <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: theme.colors.textMuted }}>
                 Choose File Format:
               </label>
               <select
@@ -349,10 +358,10 @@ export default function ExportPage() {
                   backgroundColor: theme.colors.bg,
                   border: `1px solid ${theme.colors.borderColor}`,
                   borderRadius: '6px',
-                  padding: '0.6rem 1rem',
-                  fontSize: '0.95rem',
+                  padding: '0.5rem',
+                  fontSize: '0.9rem',
                   color: theme.colors.textMain,
-                  minWidth: '180px'
+                  width: '100%'
                 }}
               >
                 <option value="json">JSON (.json)</option>
@@ -632,22 +641,41 @@ export default function ExportPage() {
             <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Your Export Result</h2>
-                {lastBlob && (
-                  <button
-                    onClick={handleDownload}
-                    style={{
-                      backgroundColor: theme.colors.primaryRed,
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '0.6rem 1.2rem',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Download File
-                  </button>
+                {output && (
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={handleCopy}
+                      style={{
+                        backgroundColor: theme.colors.bg,
+                        color: theme.colors.textMain,
+                        border: `1px solid ${theme.colors.borderColor}`,
+                        borderRadius: '6px',
+                        padding: '0.6rem 1.2rem',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Copy to Clipboard
+                    </button>
+                    {lastBlob && (
+                      <button
+                        onClick={handleDownload}
+                        style={{
+                          backgroundColor: theme.colors.primaryRed,
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '0.6rem 1.2rem',
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Download File
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               <pre style={{

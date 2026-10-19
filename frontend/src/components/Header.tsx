@@ -6,10 +6,12 @@ export default function Header() {
     <header style={{
       backgroundColor: theme.colors.panelBg,
       borderBottom: `1px solid ${theme.colors.borderColor}`,
-      padding: '1rem 2rem',
+      padding: '1rem',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: '0.5rem',
       position: 'sticky',
       top: 0,
       zIndex: 50
@@ -24,26 +26,26 @@ export default function Header() {
       }}>
         ASKITO
       </Link>
-      <nav style={{ display: 'flex', gap: '1.5rem' }}>
-        <Link href="/" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+      <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Link href="/" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Home
         </Link>
-        <Link href="/about" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+        <Link href="/about" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           About
         </Link>
-        <Link href="/playlist" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+        <Link href="/playlist" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Playlist
         </Link>
-        <Link href="/transcript" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+        <Link href="/transcript" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Transcript
         </Link>
-        <Link href="/subtitle" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+        <Link href="/subtitle" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Subtitle
         </Link>
-        <Link href="/preflight" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+        <Link href="/preflight" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Preflight
         </Link>
-        <Link href="/export" style={{ color: theme.colors.primaryRed, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>
+        <Link href="/export" style={{ color: theme.colors.primaryRed, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>
           Export
         </Link>
       </nav>

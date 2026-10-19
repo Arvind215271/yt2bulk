@@ -89,18 +89,18 @@ export default function PlaylistPage() {
   return (
     <div style={{ backgroundColor: theme.colors.bg, color: theme.colors.textMain, minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: theme.fonts.sans, width: '100%', margin: 0 }}>
       <Header />
-      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '2.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '1.5rem 1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Playlist Video Expander</h1>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Playlist Video Expander</h1>
           <p style={{ color: theme.colors.textMuted, fontSize: '1.05rem' }}>
             Extract and list all video IDs, URLs, and positions from any YouTube playlist instantly using high-performance backend pipelines.
           </p>
         </div>
 
         <form onSubmit={handleExpand} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>Playlist Input & Configuration</h2>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>Playlist Input & Configuration</h2>
             <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem', marginBottom: '1.25rem' }}>
               Enter the YouTube playlist URL or ID:
             </p>
@@ -178,9 +178,9 @@ export default function PlaylistPage() {
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '6px',
-                  padding: '0.9rem 2rem',
+                  padding: '0.75rem 1rem',
                   fontWeight: 700,
-                  fontSize: '1rem',
+                  fontSize: '0.9rem',
                   cursor: 'pointer',
                   opacity: loading ? 0.7 : 1,
                   display: 'flex',
@@ -222,10 +222,10 @@ export default function PlaylistPage() {
         )}
 
         {result && (
-          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>Playlist Results</h2>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.25rem' }}>Playlist Results</h2>
                 <p style={{ color: theme.colors.textMuted, fontSize: '0.9rem' }}>
                   Playlist ID: <strong style={{ color: theme.colors.textMain }}>{result.playlist_id}</strong> | Total Videos: <strong style={{ color: theme.colors.primaryRed }}>{result.total}</strong>
                 </p>
