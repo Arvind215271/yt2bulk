@@ -6,49 +6,32 @@ It can fetch video and playlist metadata, download subtitles, generate transcrip
 
 The application uses Go for the HTTP API and request handling. It runs persistent Python workers that use `yt-dlp` to fetch data from YouTube. Keeping the workers alive avoids starting a new Python process for every request, which reduces overhead when processing many videos.
 
+# Setup & Running Instructions
 
-# Performance & Architecture
+## 1. Backend (Go Server) Setup & Running
 
-Askito uses **persistent Python workers** instead of spawning a new `yt-dlp` process for every request. This eliminates repeated Python startup and initialization overhead (~1.5s per request), enabling high-throughput parallel video processing.
-
-## Benchmark Summary (316 Videos Playlist Export)
-
-| Workers | Export Time | Speedup |
-|---------|------------:|--------:|
-| 1       | 417.10s     | 1.00x   |
-| 16      | 29.43s      | 14.17x  |
-| 128     | 15.63s      | 26.69x  |
-
-See [BENCHMARK.md](BENCHMARK.md) for full architectural details and scaling metrics.
-
-# Requirements
-
+### Requirements
 Before running Askito, install:
-
 - Go 1.20 or later
 - Python 3.8 or later
 - pip
 - python3-venv
 - FFmpeg (recommended by `yt-dlp`)
 
-## Installation
+### Installation
 
-
-### Clone the repository
-
+#### Clone the repository
 ```bash
 git clone https://github.com/your-username/askito.git
 cd askito
 ```
 
-### Install Go dependencies
-
+#### Install Go dependencies
 ```bash
 go mod download
 ```
 
-### Create a Python virtual environment
-
+#### Create a Python virtual environment
 ```bash
 python3 -m venv venv
 
@@ -59,18 +42,14 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
-### Install Python dependencies
-
+#### Install Python dependencies
 ```bash
 pip install --upgrade pip
 pip install yt-dlp orjson
 ```
-
 Askito starts Python workers when the server launches. These workers require `yt-dlp` and `orjson`, so make sure they are installed inside the virtual environment.
 
 ### Configuration ([`.env`](.env))
-
-
 Copy the sample environment configuration file:
 ```bash
 cp .env.sample .env
@@ -94,23 +73,61 @@ YTDLP_CACHE_MAX_FILES=2000
 PYTHON_WORKERS=16
 ```
 
-## Running
-
+### Running Backend
 Start the server:
-
 ```bash
 go run main.go
 ```
 
 Or build a binary:
-
 ```bash
 go build -o askito main.go
 ./askito
 ```
 
-# API Endpoints, Parameters & Models Reference
+## 2. Frontend (Next.js App) Setup & Running
 
+The frontend is a Next.js application located in the [`frontend/`](frontend/) directory. It interacts with the Go backend APIs listed below to visualize the data and orchestrate requests.
+
+### Prerequisites
+- Node.js (v18 or later)
+- npm
+
+### Setup
+```bash
+cd frontend
+npm install
+```
+
+### Running in Development
+```bash
+cd frontend
+npm run dev
+```
+The application will be available at `http://localhost:3000`.
+
+### Building for Production
+```bash
+cd frontend
+npm run build
+npm run start
+```
+
+# Performance & Architecture
+
+Askito uses **persistent Python workers** instead of spawning a new `yt-dlp` process for every request. This eliminates repeated Python startup and initialization overhead (~1.5s per request), enabling high-throughput parallel video processing.
+
+## Benchmark Summary (316 Videos Playlist Export)
+
+| Workers | Export Time | Speedup |
+|---------|------------:|--------:|
+| 1       | 417.10s     | 1.00x   |
+| 16      | 29.43s      | 14.17x  |
+| 128     | 15.63s      | 26.69x  |
+
+See [BENCHMARK.md](BENCHMARK.md) for full architectural details and scaling metrics.
+
+# API Endpoints, Parameters & Models Reference
 
 Once the server is running at `http://localhost:8080`, you can access the following REST endpoints exposed by [`internal/api`](internal/api/):
 
@@ -270,3 +287,17 @@ Once the server is running at `http://localhost:8080`, you can access the follow
       "inputs": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
     }'
   ```
+
+# System Overview: How Everything Works Together
+
+Askito consists of a Go-based backend and a React-based frontend.
+
+1.  **Frontend**: Built with Next.js and Tailwind CSS. It provides a UI to interact with the backend services. Users submit URLs via the frontend, which calls the backend REST API.
+2.  **Backend (Go)**: The central API server handles incoming HTTP requests. It manages orchestration, request validation, and interacts with various domain services.
+3.  **Pipeline & Python Workers**: When processing requests (e.g., fetching metadata, transcriptions), the Go backend dispatches jobs to persistent Python workers. These workers run `yt-dlp` to extract data from YouTube. This worker-pool pattern is key to Askito's high-performance capability.
+4.  **Backend Services**:
+    - **Preflight Service**: Validates input URLs and estimates processing work (`internal/youtube/preflight/`).
+    - **Resource Service**: Manages fetching of video/playlist resources (`internal/youtube/resource/`).
+    - **Subtitle Service**: Handles subtitle retrieval and mapping (`internal/youtube/subtitle/`).
+    - **Transcript Service**: Handles transcript parsing and processing (`internal/youtube/transcript/`).
+    - **Export Service**: Consolidates results and formats them as requested (`internal/youtube/export/`).
