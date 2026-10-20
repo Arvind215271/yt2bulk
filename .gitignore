@@ -34,7 +34,7 @@ frontend/.env.local
 
 # Editor/IDE
 # .idea/
-# .vscode/
+.vscode/
 
 .roo/
 AGENTS.md
