@@ -1,4 +1,4 @@
-module github.com/Arvind215271/askito
+module github.com/Arvind215271/yt2bulk
 
 go 1.25.8
 

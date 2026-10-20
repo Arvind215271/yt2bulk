@@ -1,11 +1,11 @@
 package pipeline
 
 import (
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	"github.com/Arvind215271/askito/internal/youtube/planner"
-	"github.com/Arvind215271/askito/internal/youtube/signal"
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/signal"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 )
 
 // Request composes feature-specific requests from each feature package.

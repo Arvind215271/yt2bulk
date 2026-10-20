@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Askito - YouTube Export & Intelligence',
+  title: 'Yt2bulk - YouTube Export & Intelligence',
   description: 'High-performance YouTube metadata, transcript, and signal extraction toolkit',
 };
 

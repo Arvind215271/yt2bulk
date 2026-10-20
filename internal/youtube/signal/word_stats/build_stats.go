@@ -5,7 +5,7 @@ import (
 	"strings"
 	"math"
 
-	transcript "github.com/Arvind215271/askito/internal/youtube/transcript"
+	transcript "github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 )
 
 var cleanRegex = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)

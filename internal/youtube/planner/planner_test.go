@@ -3,8 +3,8 @@ package planner
 import (
 	"testing"
 
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
 )
 
 func TestPlanner_PlaylistTitle(t *testing.T) {

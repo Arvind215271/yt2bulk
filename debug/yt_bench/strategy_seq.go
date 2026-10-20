@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp"
 )
 
 func RunStrategyA(ctx context.Context, client *ytdlp.Client, videoIDs []string) (BenchmarkResult, error) {

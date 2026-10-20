@@ -34,7 +34,7 @@ YDL_OPTS = {
     "retries": 0,
     "lazy_playlist": True,
     "noprogress": True,
-    # "cookiefile": "/home/arvind-saini/Projects/askito/cookies.txt",    
+    # "cookiefile": "/home/arvind-saini/Projects/yt2bulk/cookies.txt",    
     "extractor_args": {
         "youtube": {
             "player_client": ["android"],
@@ -69,33 +69,44 @@ def send(obj):
     stdout.flush()
 
 
-def extract_with_retry(ydl, url, download=False, max_retries=3, initial_delay=2.0):
-    delay = initial_delay
+import random
+from yt_dlp.utils import DownloadError
+
+def extract_with_retry(ydl, url, download=False, max_retries=2, initial_delay=0.5, max_delay=2.0):
     for attempt in range(max_retries):
         try:
             return ydl.extract_info(url, download=download)
         except Exception as e:
-            err_msg = str(e)
-            is_rate_limit = "429" in err_msg or "Too Many Requests" in err_msg or "HTTP Error" in err_msg
-            if attempt == max_retries - 1 or not is_rate_limit:
+            error = str(e)
+            is_rate_limit = "429" in error or "Too Many Requests" in error
+            
+            if not is_rate_limit or attempt == max_retries - 1:
                 raise
+
+            delay = min(initial_delay * (2 ** attempt), max_delay)
+            delay *= random.uniform(0.8, 1.2)
+            
+            print(f"Rate limited by YouTube. Retry {attempt + 1}/{max_retries} in {delay:.1f}s", file=sys.stderr, flush=True)
             time.sleep(delay)
-            delay *= 2.0
 
 
-def download_with_retry(ydl, url_list, max_retries=3, initial_delay=2.0):
-    delay = initial_delay
+def download_with_retry(ydl, url_list, max_retries=2, initial_delay=0.5, max_delay=2.0):
     for attempt in range(max_retries):
         try:
             ydl.download(url_list)
             return
-        except Exception as e:
-            err_msg = str(e)
-            is_rate_limit = "429" in err_msg or "Too Many Requests" in err_msg or "HTTP Error" in err_msg
-            if attempt == max_retries - 1 or not is_rate_limit:
+        except DownloadError as e:
+            error = str(e)
+            is_rate_limit = "429" in error or "Too Many Requests" in error
+            
+            if not is_rate_limit or attempt == max_retries - 1:
                 raise
+
+            delay = min(initial_delay * (2 ** attempt), max_delay)
+            delay *= random.uniform(0.8, 1.2)
+            
+            print(f"Rate limited by YouTube. Retry {attempt + 1}/{max_retries} in {delay:.1f}s", file=sys.stderr, flush=True)
             time.sleep(delay)
-            delay *= 2.0
 
 
 def main():

@@ -10,10 +10,10 @@ package debug
 // 	"strings"
 // 	"regexp"
 
-// 	"github.com/Arvind215271/askito/internal/logger"
-// 	"github.com/Arvind215271/askito/internal/youtube"
-// 	"github.com/Arvind215271/askito/internal/youtube/chapter"
-// 	"github.com/Arvind215271/askito/internal/youtube/transcript"
+// 	"github.com/Arvind215271/yt2bulk/internal/logger"
+// 	"github.com/Arvind215271/yt2bulk/internal/youtube"
+// 	"github.com/Arvind215271/yt2bulk/internal/youtube/chapter"
+// 	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 // )
 
 // // DebugLLMContext fetches your playlist, runs your context reduction strategy,

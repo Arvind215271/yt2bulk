@@ -4,10 +4,11 @@ package youtubeapi
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/Arvind215271/askito/internal/logger"
-	youtube "github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	youtube "github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 type Provider struct {
@@ -37,6 +38,9 @@ func (p *Provider) GetPlaylistMetadata(
 	}
 
 	// contain playlist metadata only not any videoID in it.
+	if p.client == nil {
+		return youtube.Playlist{}, youtube.Err.Playlist.FetchFailed().Wrap(fmt.Errorf("youtube client not initialized"))
+	}
 	playlist, err := p.client.GetPlaylist(
 		ctx,
 		playlistID,
@@ -84,6 +88,9 @@ func (p *Provider) GetVideo(
 		st.UpstreamFetches++
 	}
 
+	if p.client == nil {
+		return youtube.Video{}, youtube.Err.Video.FetchFailed().Wrap(fmt.Errorf("youtube client not initialized"))
+	}
 	videoList, err := p.client.GetVideos(
 		ctx,
 		[]string{videoID},
@@ -111,6 +118,9 @@ func (p *Provider) GetPlaylistItems(
 		st.APIRequests++
 		st.CacheMisses++
 		st.UpstreamFetches++
+	}
+	if p.client == nil {
+		return nil, youtube.Err.Playlist.FetchFailed().Wrap(fmt.Errorf("youtube client not initialized"))
 	}
 	items, err := p.client.GetPlaylistItems(ctx, playlistID)
 	if err != nil {

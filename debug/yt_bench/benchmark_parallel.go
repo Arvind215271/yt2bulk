@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp"
 )
 
 func BenchmarkParallel(ctx context.Context, playlistID string, outputDir string, workers int) (BenchmarkResult, error) {

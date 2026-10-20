@@ -1,8 +1,8 @@
 package signal
 
 import (
-	transcript "github.com/Arvind215271/askito/internal/youtube/transcript"
-	wordstats "github.com/Arvind215271/askito/internal/youtube/signal/word_stats"
+	transcript "github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
+	wordstats "github.com/Arvind215271/yt2bulk/internal/youtube/signal/word_stats"
 )
 
 type SignalService struct {

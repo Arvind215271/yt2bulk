@@ -5,9 +5,9 @@ package youtube
 import (
 	"time"
 
-	"github.com/Arvind215271/askito/internal/youtube/description"
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/description"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 )
 
 // ResourceType defines the type of resource wrapper (e.g. video or playlist).

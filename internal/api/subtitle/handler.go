@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/export"
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/pipeline"
-	"github.com/Arvind215271/askito/internal/youtube/planner"
-	"github.com/Arvind215271/askito/internal/youtube/resource"
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/export"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/pipeline"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/resource"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
 	"github.com/labstack/echo/v5"
 )
 

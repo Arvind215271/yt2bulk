@@ -1,7 +1,7 @@
 package resource
 
 import (
-	"github.com/Arvind215271/askito/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
 )
 
 // ItemToVideo maps a playlist item snapshot into a fully populated youtube.Video.

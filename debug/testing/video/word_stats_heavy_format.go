@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Arvind215271/askito/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
 )
 
 func RunHeavyWordStatsBucketFormatTest(video youtube.Video) VideoTestResult {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"regexp"
 
-	youtube "github.com/Arvind215271/askito/internal/youtube"
+	youtube "github.com/Arvind215271/yt2bulk/internal/youtube"
 )
 
 var stopWords = map[string]bool{

@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp"
 )
 
 func BenchmarkSequential(ctx context.Context, playlistID string, outputDir string) (BenchmarkResult, error) {

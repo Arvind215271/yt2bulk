@@ -3,9 +3,9 @@ package resource
 import (
 	"context"
 
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/pipeline"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/pipeline"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 // ProcessVideo handles processing a single video URL/ID using the pipeline.

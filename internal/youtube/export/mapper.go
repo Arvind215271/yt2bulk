@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/fields"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
 )
 
 func getJSONKey(f reflect.StructField) (string, bool) {

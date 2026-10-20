@@ -7,7 +7,7 @@ package yt_bench
 // 	"encoding/json"
 // 	"testing"
 
-// 	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp"
+// 	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp"
 // )
 
 // func TestFlatPlaylistCount(t *testing.T) {

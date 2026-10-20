@@ -3,7 +3,7 @@ package subtitle
 import (
 	"testing"
 
-	subdomain "github.com/Arvind215271/askito/internal/youtube/subtitle"
+	subdomain "github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
 )
 
 func TestBuildPreferences(t *testing.T) {

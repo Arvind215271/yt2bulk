@@ -1,8 +1,8 @@
 package pipeline
 
 import (
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
 )
 
 // ResourceContext holds the state for processing a resource through the pipeline.

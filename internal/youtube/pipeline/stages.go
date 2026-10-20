@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	// "github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/description"
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
-	"github.com/Arvind215271/askito/internal/youtube/signal"
-	wordstats "github.com/Arvind215271/askito/internal/youtube/signal/word_stats"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
+	// "github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/description"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/signal"
+	wordstats "github.com/Arvind215271/yt2bulk/internal/youtube/signal/word_stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 )
 
 func ProcessMetadata(ctx context.Context, rc *ResourceContext, metaSvc *metadata.Service) (stats.MetadataStats, error) {

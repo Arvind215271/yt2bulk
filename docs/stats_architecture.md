@@ -1,6 +1,6 @@
 # Architecture: Processing Statistics and Accounting Layer
 
-This document outlines the architecture for the internal processing statistics and accounting layer in Askito.
+This document outlines the architecture for the internal processing statistics and accounting layer in Yt2bulk.
 
 ---
 

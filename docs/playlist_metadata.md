@@ -1,4 +1,4 @@
-The yt-dlp metadata processing pipeline in Askito utilizes a persistent Python worker pool architecture communicating over binary-framed stdin/stdout IPC streams from Go, integrated with a local caching layer and robust retry/recovery logic. Below is the complete code and architecture summary.
+The yt-dlp metadata processing pipeline in Yt2bulk utilizes a persistent Python worker pool architecture communicating over binary-framed stdin/stdout IPC streams from Go, integrated with a local caching layer and robust retry/recovery logic. Below is the complete code and architecture summary.
 
 ### Architecture Overview
 

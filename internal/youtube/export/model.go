@@ -1,8 +1,8 @@
 package export
 
 import (
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 type Format string

@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Arvind215271/askito/internal/config"
+	"github.com/Arvind215271/yt2bulk/internal/config"
 	"github.com/joho/godotenv"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
