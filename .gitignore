@@ -40,6 +40,7 @@ frontend/.env.local
 AGENTS.md
 
 .venv
+venv
 myenv
 # Ignore benchmark generated/debug files
 debug/yt_bench/debug/
@@ -51,3 +52,8 @@ frontend/node_modules
 
 # Frontend Next modules
 frontend/.next
+# Python virtual environment
+venv/
+.venv/
+__pycache__/
+*.py[cod]
