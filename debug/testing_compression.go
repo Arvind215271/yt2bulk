@@ -5,8 +5,8 @@ package debug
 // 	"regexp"
 // 	"strings"
 
-// 	youtube "github.com/Arvind215271/askito/internal/youtube"
-// 	transcript "github.com/Arvind215271/askito/internal/youtube/transcript"
+// 	youtube "github.com/Arvind215271/yt2bulk/internal/youtube"
+// 	transcript "github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 // )
 
 

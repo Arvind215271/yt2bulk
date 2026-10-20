@@ -8,50 +8,50 @@ import (
 	"github.com/labstack/echo/v5"
 
 	// config
-	"github.com/Arvind215271/askito/internal/config"
+	"github.com/Arvind215271/yt2bulk/internal/config"
 
 	// logger
-	"github.com/Arvind215271/askito/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 
 	// api
-	"github.com/Arvind215271/askito/internal/api"
-	"github.com/Arvind215271/askito/internal/api/export"
-	apiPlaylist "github.com/Arvind215271/askito/internal/api/playlist"
-	apiPreflight "github.com/Arvind215271/askito/internal/api/preflight"
-	apiSubtitle "github.com/Arvind215271/askito/internal/api/subtitle"
-	apiTranscript "github.com/Arvind215271/askito/internal/api/transcript"
+	"github.com/Arvind215271/yt2bulk/internal/api"
+	"github.com/Arvind215271/yt2bulk/internal/api/export"
+	apiPlaylist "github.com/Arvind215271/yt2bulk/internal/api/playlist"
+	apiPreflight "github.com/Arvind215271/yt2bulk/internal/api/preflight"
+	apiSubtitle "github.com/Arvind215271/yt2bulk/internal/api/subtitle"
+	apiTranscript "github.com/Arvind215271/yt2bulk/internal/api/transcript"
 
 	// cache
-	"github.com/Arvind215271/askito/internal/cache"
+	"github.com/Arvind215271/yt2bulk/internal/cache"
 
 	// youtube
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
-	youtubeapi "github.com/Arvind215271/askito/internal/youtube/metadata/youtube_api"
-	ytdlpmetadata "github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp"
-	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp/python"
-	"github.com/Arvind215271/askito/internal/youtube/preflight"
-	ytSubtitle "github.com/Arvind215271/askito/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	youtubeapi "github.com/Arvind215271/yt2bulk/internal/youtube/metadata/youtube_api"
+	ytdlpmetadata "github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp/python"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
+	ytSubtitle "github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
 
 	// transcript
-	ytTranscript "github.com/Arvind215271/askito/internal/youtube/transcript"
+	ytTranscript "github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 
 	// signal
-	ytSignal "github.com/Arvind215271/askito/internal/youtube/signal"
+	ytSignal "github.com/Arvind215271/yt2bulk/internal/youtube/signal"
 
 	// export
-	exportservice "github.com/Arvind215271/askito/internal/youtube/export"
+	exportservice "github.com/Arvind215271/yt2bulk/internal/youtube/export"
 
 	// description
-	"github.com/Arvind215271/askito/internal/youtube/description"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/description"
 
 	// debug
-	"github.com/Arvind215271/askito/debug"
+	"github.com/Arvind215271/yt2bulk/debug"
 
 	//pipeline
-	"github.com/Arvind215271/askito/internal/youtube/pipeline"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/pipeline"
 
 	//resource
-	"github.com/Arvind215271/askito/internal/youtube/resource"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/resource"
 )
 
 func main() {

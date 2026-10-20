@@ -7,8 +7,8 @@ import (
 	// "unicode/utf8"
 	"strings"
 
-	"github.com/Arvind215271/askito/internal/youtube"
-	wordstats "github.com/Arvind215271/askito/internal/youtube/signal/word_stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	wordstats "github.com/Arvind215271/yt2bulk/internal/youtube/signal/word_stats"
 )
 
 type VideoTestResult struct {

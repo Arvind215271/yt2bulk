@@ -1,10 +1,10 @@
 package pipeline
 
 import (
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/description"
-	wordstats "github.com/Arvind215271/askito/internal/youtube/signal/word_stats"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/description"
+	wordstats "github.com/Arvind215271/yt2bulk/internal/youtube/signal/word_stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 )
 
 // func MapMetadata(video *youtube.Video, meta *youtube.Video) {

@@ -1,9 +1,9 @@
 
-# Askito Benchmark
+# Yt2bulk Benchmark
 
-## Why Askito Uses Persistent Python Workers
+## Why Yt2bulk Uses Persistent Python Workers
 
-Askito uses persistent Python workers instead of spawning a new `yt-dlp` process for every request.
+Yt2bulk uses persistent Python workers instead of spawning a new `yt-dlp` process for every request.
 
 The reason is that `yt-dlp` startup cost is not free.
 
@@ -27,7 +27,7 @@ exit process
 
 Every request repeats the initialization cost.
 
-Askito changes this by keeping Python workers alive:
+Yt2bulk changes this by keeping Python workers alive:
 
 ```
 Go API Server
@@ -102,7 +102,7 @@ For hundreds or thousands of videos this becomes expensive because the overhead 
 
 # Worker Warmup
 
-Askito workers perform warmup when starting.
+Yt2bulk workers perform warmup when starting.
 
 Warmup may take several seconds because:
 
@@ -145,7 +145,7 @@ With command execution:
 100 x shutdown
 ```
 
-With Askito:
+With Yt2bulk:
 
 ```
 Worker startup once
@@ -180,7 +180,7 @@ Workers:
 The benchmark:
 
 1. Clears yt-dlp cache
-2. Starts Askito
+2. Starts Yt2bulk
 3. Warms workers
 4. Fetches playlist
 5. Runs export pipeline
@@ -263,7 +263,7 @@ Problems:
 * no worker reuse
 * harder resource management
 
-Askito avoids this by managing workers internally.
+Yt2bulk avoids this by managing workers internally.
 
 ---
 
@@ -308,5 +308,5 @@ The worker model becomes increasingly beneficial when processing:
 * transcript generation
 * large YouTube datasets
 
-Askito is designed around long-running workloads where repeatedly starting `yt-dlp` would become the bottleneck.
+Yt2bulk is designed around long-running workloads where repeatedly starting `yt-dlp` would become the bottleneck.
 

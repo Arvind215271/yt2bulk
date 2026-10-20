@@ -1,7 +1,7 @@
 package wordstats
 
 import (
-	stopwords "github.com/Arvind215271/askito/internal/youtube/signal/stopwords"
+	stopwords "github.com/Arvind215271/yt2bulk/internal/youtube/signal/stopwords"
 
 )
 

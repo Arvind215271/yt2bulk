@@ -3,8 +3,8 @@ package transcript
 import (
 	"net/http"
 
-	"github.com/Arvind215271/askito/internal/api"
-	subtitleapi "github.com/Arvind215271/askito/internal/api/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/api"
+	subtitleapi "github.com/Arvind215271/yt2bulk/internal/api/subtitle"
 )
 
 type TranscriptRequest struct {

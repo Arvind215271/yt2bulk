@@ -24,7 +24,7 @@ export default function Header() {
         textDecoration: 'none',
         letterSpacing: '-0.05em'
       }}>
-        ASKITO
+        YT2BULK
       </Link>
       <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         <Link href="/" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>

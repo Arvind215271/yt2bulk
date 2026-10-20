@@ -12,10 +12,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
-	"github.com/Arvind215271/askito/internal/youtube/preflight"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 // MockService is a mock of the preflight.Service interface

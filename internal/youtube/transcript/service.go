@@ -3,7 +3,7 @@ package transcript
 import (
 	"fmt"
 
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
 )
 
 type Service struct{}

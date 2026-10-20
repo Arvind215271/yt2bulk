@@ -5,7 +5,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/Arvind215271/askito/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 )
 
 // ErrManagerClosed signals the manager is no longer accepting requests.

@@ -13,10 +13,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/cache"
-	"github.com/Arvind215271/askito/internal/logger"
-	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp"
-	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp/python"
+	"github.com/Arvind215271/yt2bulk/internal/cache"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp/python"
 )
 
 func BenchmarkPythonPool(ctx context.Context, playlistID string, outputDir string, workers int, cacheMgr *cache.Manager, loggerInstance *log.Logger) (BenchmarkResult, error) {

@@ -1,8 +1,8 @@
 package planner
 
 import (
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
 )
 
 // Build constructs an ExecutionPlan based on the requested resource types and field selections.

@@ -3,8 +3,8 @@ package metadata
 import (
 	"context"
 
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 type Service struct {

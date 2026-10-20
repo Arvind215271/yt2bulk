@@ -3,8 +3,8 @@ package preflight
 import (
 	"net/http"
 
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/preflight"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
 	"github.com/labstack/echo/v5"
 )
 

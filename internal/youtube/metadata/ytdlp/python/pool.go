@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/cache"
-	"github.com/Arvind215271/askito/internal/logger"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/cache"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 type WorkerExecution struct {

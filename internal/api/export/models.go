@@ -1,10 +1,10 @@
 package export
 
 import (
-	subtitleapi "github.com/Arvind215271/askito/internal/api/subtitle"
-	"github.com/Arvind215271/askito/internal/youtube/signal"
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
+	subtitleapi "github.com/Arvind215271/yt2bulk/internal/api/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/signal"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 )
 
 type CommonExportFields struct {

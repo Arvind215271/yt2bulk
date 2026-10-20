@@ -1,8 +1,8 @@
 package export
 
 import (
-	youtube "github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/fields"
+	youtube "github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
 )
 
 // BuildPlaylist converts a playlist domain model into common ExportData.

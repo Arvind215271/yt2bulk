@@ -9,18 +9,18 @@ import (
 
 	"strings"
 
-	"github.com/Arvind215271/askito/internal/cache"
-	"github.com/Arvind215271/askito/internal/logger"
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/description"
-	"github.com/Arvind215271/askito/internal/youtube/export"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
-	"github.com/Arvind215271/askito/internal/youtube/metadata/ytdlp/python"
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
+	"github.com/Arvind215271/yt2bulk/internal/cache"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/description"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/export"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata/ytdlp/python"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 
-	debugvideo "github.com/Arvind215271/askito/debug/testing/video"
+	debugvideo "github.com/Arvind215271/yt2bulk/debug/testing/video"
 )
 
 func DebugInput(

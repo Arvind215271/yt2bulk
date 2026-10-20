@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Arvind215271/askito/internal/cache"
-	"github.com/Arvind215271/askito/internal/logger"
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
-	"github.com/Arvind215271/askito/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/cache"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
 )
 
 // ServiceImpl implements the preflight.Service interface.

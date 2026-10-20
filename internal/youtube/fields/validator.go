@@ -1,7 +1,7 @@
 package fields
 
 import (
-	"github.com/Arvind215271/askito/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
 )
 
 // ValidateFields ensures all requested fields are valid using the registry.

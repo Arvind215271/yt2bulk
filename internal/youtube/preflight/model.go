@@ -3,9 +3,9 @@ package preflight
 import (
 	"context"
 
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
 )
 
 // Request defines the input for a preflight check.

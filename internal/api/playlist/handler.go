@@ -3,9 +3,9 @@ package playlist
 import (
 	"net/http"
 
-	"github.com/Arvind215271/askito/internal/api"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/api"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
 	"github.com/labstack/echo/v5"
 )
 

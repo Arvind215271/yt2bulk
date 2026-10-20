@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/logger"
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 type Provider struct {

@@ -8,7 +8,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/Arvind215271/askito/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 )
 
 var ErrWorkerDied = errors.New("python worker died")
@@ -29,7 +29,7 @@ func NewWorker(
 	log *logger.Logger,
 ) (*PythonWorker, error) {
 	cmd := exec.Command(
-		"python3",
+		"./venv/bin/python3",
 		"-u",
 		scriptPath,
 		"--worker-id",

@@ -3,8 +3,8 @@ package preflight
 import (
 	"context"
 
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
-	"github.com/Arvind215271/askito/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
 )
 
 // addVideoPreflight performs the fixed video accounting based on metadata and subtitle cache state.

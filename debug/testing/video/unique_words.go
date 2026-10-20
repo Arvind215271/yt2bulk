@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Arvind215271/askito/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
 )
 
 func RunUniqueWordReductionTest(video youtube.Video) VideoTestResult {

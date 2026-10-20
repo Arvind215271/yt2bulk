@@ -4,8 +4,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/Arvind215271/yt2bulk/internal/cache"
 	"github.com/joho/godotenv"
-	"github.com/Arvind215271/askito/internal/cache"
 )
 
 type Config struct {

@@ -3,12 +3,12 @@ package pipeline
 import (
 	"testing"
 
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	youtubeurl "github.com/Arvind215271/askito/internal/youtube/input"
-	"github.com/Arvind215271/askito/internal/youtube/planner"
-	"github.com/Arvind215271/askito/internal/youtube/signal"
-	"github.com/Arvind215271/askito/internal/youtube/subtitle"
-	"github.com/Arvind215271/askito/internal/youtube/transcript"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/signal"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 )
 
 func TestRequest_Combinations(t *testing.T) {

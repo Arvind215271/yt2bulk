@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Arvind215271/askito/internal/logger"
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/metadata"
-	"github.com/Arvind215271/askito/internal/youtube/pipeline"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/pipeline"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 // ProcessPlaylist fetches playlist items, decides whether the pipeline is needed based on execution plan,

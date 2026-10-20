@@ -1,6 +1,6 @@
-# Askito
+# Yt2bulk
 
-Askito is a Go application for extracting and processing YouTube data.
+Yt2bulk is a Go application for extracting and processing YouTube data.
 
 It can fetch video and playlist metadata, download subtitles, generate transcripts, analyze transcript statistics, and export the results in different formats.
 
@@ -11,7 +11,7 @@ The application uses Go for the HTTP API and request handling. It runs persisten
 ## 1. Backend (Go Server) Setup & Running
 
 ### Requirements
-Before running Askito, install:
+Before running Yt2bulk, install:
 - Go 1.20 or later
 - Python 3.8 or later
 - pip
@@ -22,8 +22,8 @@ Before running Askito, install:
 
 #### Clone the repository
 ```bash
-git clone https://github.com/your-username/askito.git
-cd askito
+git clone https://github.com/your-username/yt2bulk.git
+cd yt2bulk
 ```
 
 #### Install Go dependencies
@@ -47,7 +47,7 @@ venv\Scripts\activate
 pip install --upgrade pip
 pip install yt-dlp orjson
 ```
-Askito starts Python workers when the server launches. These workers require `yt-dlp` and `orjson`, so make sure they are installed inside the virtual environment.
+Yt2bulk starts Python workers when the server launches. These workers require `yt-dlp` and `orjson`, so make sure they are installed inside the virtual environment.
 
 ### Configuration ([`.env`](.env))
 Copy the sample environment configuration file:
@@ -81,8 +81,8 @@ go run main.go
 
 Or build a binary:
 ```bash
-go build -o askito main.go
-./askito
+go build -o yt2bulk main.go
+./yt2bulk
 ```
 
 ## 2. Frontend (Next.js App) Setup & Running
@@ -115,7 +115,7 @@ npm run start
 
 # Performance & Architecture
 
-Askito uses **persistent Python workers** instead of spawning a new `yt-dlp` process for every request. This eliminates repeated Python startup and initialization overhead (~1.5s per request), enabling high-throughput parallel video processing.
+Yt2bulk uses **persistent Python workers** instead of spawning a new `yt-dlp` process for every request. This eliminates repeated Python startup and initialization overhead (~1.5s per request), enabling high-throughput parallel video processing.
 
 ## Benchmark Summary (316 Videos Playlist Export)
 
@@ -290,11 +290,11 @@ Once the server is running at `http://localhost:8080`, you can access the follow
 
 # System Overview: How Everything Works Together
 
-Askito consists of a Go-based backend and a React-based frontend.
+Yt2bulk consists of a Go-based backend and a React-based frontend.
 
 1.  **Frontend**: Built with Next.js and Tailwind CSS. It provides a UI to interact with the backend services. Users submit URLs via the frontend, which calls the backend REST API.
 2.  **Backend (Go)**: The central API server handles incoming HTTP requests. It manages orchestration, request validation, and interacts with various domain services.
-3.  **Pipeline & Python Workers**: When processing requests (e.g., fetching metadata, transcriptions), the Go backend dispatches jobs to persistent Python workers. These workers run `yt-dlp` to extract data from YouTube. This worker-pool pattern is key to Askito's high-performance capability.
+3.  **Pipeline & Python Workers**: When processing requests (e.g., fetching metadata, transcriptions), the Go backend dispatches jobs to persistent Python workers. These workers run `yt-dlp` to extract data from YouTube. This worker-pool pattern is key to Yt2bulk's high-performance capability.
 4.  **Backend Services**:
     - **Preflight Service**: Validates input URLs and estimates processing work (`internal/youtube/preflight/`).
     - **Resource Service**: Manages fetching of video/playlist resources (`internal/youtube/resource/`).

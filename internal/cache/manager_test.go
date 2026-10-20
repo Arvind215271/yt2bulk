@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 )
 
 func TestManager_Exists(t *testing.T) {

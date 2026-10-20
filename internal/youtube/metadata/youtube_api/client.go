@@ -3,8 +3,8 @@ package youtubeapi
 import (
 	"context"
 
-	"github.com/Arvind215271/askito/internal/logger"
-	youtube "github.com/Arvind215271/askito/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
+	youtube "github.com/Arvind215271/yt2bulk/internal/youtube"
 	"google.golang.org/api/option"
 	yt "google.golang.org/api/youtube/v3"
 )

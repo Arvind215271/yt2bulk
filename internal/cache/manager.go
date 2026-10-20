@@ -7,7 +7,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/Arvind215271/askito/internal/logger"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 )
 
 type Config struct {

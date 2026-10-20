@@ -3,7 +3,7 @@ package playlist
 import (
 	"net/http"
 
-	"github.com/Arvind215271/askito/internal/api"
+	"github.com/Arvind215271/yt2bulk/internal/api"
 )
 
 type PlaylistErrors struct{}

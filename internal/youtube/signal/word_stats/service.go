@@ -1,6 +1,6 @@
 package wordstats
 
-import transcript "github.com/Arvind215271/askito/internal/youtube/transcript"
+import transcript "github.com/Arvind215271/yt2bulk/internal/youtube/transcript"
 
 
 

@@ -3,9 +3,9 @@ package export
 import (
 	"sync"
 
-	"github.com/Arvind215271/askito/internal/youtube"
-	"github.com/Arvind215271/askito/internal/youtube/fields"
-	"github.com/Arvind215271/askito/internal/youtube/stats"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
 
 // Service is the application layer that orchestrates
