@@ -57,3 +57,8 @@ venv/
 .venv/
 __pycache__/
 *.py[cod]
+
+
+tmp
+# Temporary files and builds
+tmp/
