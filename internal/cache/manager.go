@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -11,9 +12,10 @@ import (
 )
 
 type Config struct {
-	CacheDir string
-	TTLDays  int
-	MaxFiles int
+	CacheDir        string
+	TTLDays         int
+	MaxFiles        int
+	CleanupInterval time.Duration
 }
 
 type Manager struct {
@@ -204,4 +206,24 @@ func (m *Manager) Cleanup() error {
 	}
 
 	return nil
+}
+
+// StartCleanupLoop runs Cleanup periodically.
+func (m *Manager) StartCleanupLoop(ctx context.Context, interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				if err := m.Cleanup(); err != nil {
+					m.logger.Error("cache cleanup failed", "error", err)
+				} else {
+					m.logger.Info("periodic cache cleanup completed")
+				}
+			case <-ctx.Done():
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 }

@@ -4,11 +4,13 @@ import React, { useState } from 'react';
 import Header from '@/components/Header';
 import { availableFields } from '@/constants/fields';
 import { theme } from '@/theme/theme';
+import { useError } from '@/components/ErrorContext';
 
 import { checkPreflight, PreflightResponse } from '@/services/preflight';
 import PreflightResultCard from '@/components/PreflightResultCard';
 
 export default function ExportPage() {
+  const { addError } = useError();
   const [inputs, setInputs] = useState('');
   const [format, setFormat] = useState('json');
   const [selectedFields, setSelectedFields] = useState<string[]>([
@@ -60,7 +62,7 @@ export default function ExportPage() {
       setPreflightData(data);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
-        alert('Preflight check failed: ' + err.message);
+        addError(err.message, { context: 'preflight', details: err });
       }
     } finally {
       setPreflightLoading(false);
@@ -99,10 +101,8 @@ export default function ExportPage() {
       const parsed = JSON.parse(text);
       setRawSubtitleOptions(parsed);
     } catch (err: any) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) {
-        setOutput('Subtitle options fetch cancelled.');
-      } else {
-        alert('Error fetching subtitle options: ' + err.message);
+      if (err.name !== 'AbortError' && !err.message?.includes('aborted')) {
+        addError(err.message, { context: 'subtitle_options' });
       }
     } finally {
       setSubtitleOptionsLoading(false);
@@ -240,7 +240,22 @@ export default function ExportPage() {
 
       if (!res.ok) {
         const errText = await res.text();
-        throw new Error(errText || 'Export failed');
+        let errorMessage = errText || 'Export failed';
+        let errorData = undefined;
+        try {
+          const errorJson = JSON.parse(errText);
+          if (errorJson && errorJson.message) {
+            errorMessage = errorJson.message;
+          }
+          if (errorJson && errorJson.data) {
+            errorData = errorJson.data;
+          }
+        } catch (e) {
+          console.warn('[ExportPage] Failed to parse error response as JSON', e);
+        }
+        const error = new Error(errorMessage);
+        (error as any).data = errorData;
+        throw error;
       }
 
       const contentType = res.headers.get('content-type') || '';
@@ -276,10 +291,9 @@ export default function ExportPage() {
         setOutput(text.slice(0, 5000) + (text.length > 5000 ? '\n\n[Output truncated for preview]' : ''));
       }
     } catch (err: any) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) {
-        setOutput('Export request was cancelled by user.');
-      } else {
-        setOutput('Error: ' + err.message);
+      if (err.name !== 'AbortError' && !err.message?.includes('aborted')) {
+        addError(err.message, err.data || { context: 'export' });
+        setOutput('Export failed.');
       }
     } finally {
       setLoading(false);

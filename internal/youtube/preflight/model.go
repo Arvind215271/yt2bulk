@@ -1,4 +1,4 @@
-package preflight
+ package preflight
 
 import (
 	"context"
@@ -27,6 +27,7 @@ type Result struct {
 // Service defines the contract for preflight operations.
 type Service interface {
 	Check(ctx context.Context, req Request) (Result, error)
+	GetMaxLimit() int
 }
 
 // Estimator interface for estimating resource requirements.

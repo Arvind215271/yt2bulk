@@ -287,17 +287,3 @@ Once the server is running at `http://localhost:8080`, you can access the follow
       "inputs": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
     }'
   ```
-
-# System Overview: How Everything Works Together
-
-Yt2bulk consists of a Go-based backend and a React-based frontend.
-
-1.  **Frontend**: Built with Next.js and Tailwind CSS. It provides a UI to interact with the backend services. Users submit URLs via the frontend, which calls the backend REST API.
-2.  **Backend (Go)**: The central API server handles incoming HTTP requests. It manages orchestration, request validation, and interacts with various domain services.
-3.  **Pipeline & Python Workers**: When processing requests (e.g., fetching metadata, transcriptions), the Go backend dispatches jobs to persistent Python workers. These workers run `yt-dlp` to extract data from YouTube. This worker-pool pattern is key to Yt2bulk's high-performance capability.
-4.  **Backend Services**:
-    - **Preflight Service**: Validates input URLs and estimates processing work (`internal/youtube/preflight/`).
-    - **Resource Service**: Manages fetching of video/playlist resources (`internal/youtube/resource/`).
-    - **Subtitle Service**: Handles subtitle retrieval and mapping (`internal/youtube/subtitle/`).
-    - **Transcript Service**: Handles transcript parsing and processing (`internal/youtube/transcript/`).
-    - **Export Service**: Consolidates results and formats them as requested (`internal/youtube/export/`).

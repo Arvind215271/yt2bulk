@@ -12,26 +12,30 @@ import (
 	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/pipeline"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/resource"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/subtitle"
 	"github.com/labstack/echo/v5"
 )
 
 type Handler struct {
-	resourceService *resource.Service
-	subtitleService *subtitle.SubtitleService
-	exportService   *export.Service
+	resourceService  *resource.Service
+	subtitleService  *subtitle.SubtitleService
+	exportService    *export.Service
+	preflightService preflight.Service
 }
 
 func NewHandler(
 	resourceService *resource.Service,
 	subtitleService *subtitle.SubtitleService,
 	exportService *export.Service,
+	preflightService preflight.Service,
 ) *Handler {
 	return &Handler{
-		resourceService: resourceService,
-		subtitleService: subtitleService,
-		exportService:   exportService,
+		resourceService:  resourceService,
+		subtitleService:  subtitleService,
+		exportService:    exportService,
+		preflightService: preflightService,
 	}
 }
 
@@ -43,6 +47,25 @@ func (h *Handler) GetSubtitleOptions(c *echo.Context) error {
 
 	if len(req.Inputs) == 0 {
 		return Err.BadRequest("inputs required")
+	}
+
+	parsedInputsForPreflight := make([]*youtubeurl.YouTubeInput, len(req.Inputs))
+	for i, in := range req.Inputs {
+		parsed, err := youtubeurl.Parse(in)
+		if err == nil && parsed != nil {
+			parsedInputsForPreflight[i] = parsed
+		} else {
+			parsedInputsForPreflight[i] = &youtubeurl.YouTubeInput{InputType: youtubeurl.InputTypeVideo, ID: in}
+		}
+	}
+	preflightReq := preflight.Request{Inputs: parsedInputsForPreflight}
+	ctx := c.Request().Context()
+	res, err := h.preflightService.Check(ctx, preflightReq)
+	if err != nil {
+		return Err.BadRequest(err.Error()).Wrap(err)
+	}
+	if !res.Valid {
+		return Err.BadRequest(res.Error.Error()).Wrap(res.Error)
 	}
 
 	fieldPlanner, err := fields.NewPlanner([]string{"id", "subtitle_metadata"})
@@ -67,7 +90,6 @@ func (h *Handler) GetSubtitleOptions(c *echo.Context) error {
 		ExecutionPlan: executionPlan,
 	}
 
-	ctx := c.Request().Context()
 	resources := h.resourceService.ProcessResources(ctx, inputs, pipelineReq)
 
 	data, err := h.exportService.ExportBatchResource(resources, export.FormatJSON, fieldPlanner, nil)
@@ -92,6 +114,22 @@ func (h *Handler) DownloadSubtitle(c *echo.Context) error {
 
 	if len(req.Inputs) == 0 {
 		return Err.BadRequest("inputs required")
+	}
+
+	parsedInputsForPreflight := make([]*youtubeurl.YouTubeInput, len(req.Inputs))
+	for i, in := range req.Inputs {
+		parsed, err := youtubeurl.Parse(in)
+		if err == nil && parsed != nil {
+			parsedInputsForPreflight[i] = parsed
+		} else {
+			parsedInputsForPreflight[i] = &youtubeurl.YouTubeInput{InputType: youtubeurl.InputTypeVideo, ID: in}
+		}
+	}
+	preflightReq := preflight.Request{Inputs: parsedInputsForPreflight}
+	ctx := c.Request().Context()
+	_, err := h.preflightService.Check(ctx, preflightReq)
+	if err != nil {
+		return Err.BadRequest(err.Error()).Wrap(err)
 	}
 
 	parsedInputs := make([]youtubeurl.YouTubeInput, len(req.Inputs))
@@ -150,7 +188,6 @@ func (h *Handler) DownloadSubtitle(c *echo.Context) error {
 		Format:      format,
 	}
 
-	ctx := c.Request().Context()
 	resources := h.resourceService.ProcessResources(ctx, inputs, pipelineReq)
 
 	type subFile struct {

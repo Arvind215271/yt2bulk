@@ -48,6 +48,9 @@ export default function Header() {
         <Link href="/export" style={{ color: theme.colors.primaryRed, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>
           Export
         </Link>
+        <a href="https://github.com/Arvind215271/yt2bulk" target="_blank" rel="noopener noreferrer" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
+          GitHub
+        </a>
       </nav>
     </header>
   );

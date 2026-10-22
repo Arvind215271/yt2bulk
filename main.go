@@ -129,6 +129,9 @@ func main() {
 	// cleanup.
 	cacheManager.Cleanup()
 
+	// start periodic cleanup loop
+	cacheManager.StartCleanupLoop(ctx, config.YtdlpCache.CleanupInterval)
+
 	pythonPool, err := python.NewSinglePool(config.PythonWorkers, logger, cacheManager)
 	pythonPool.WarmUp(ctx)
 
@@ -153,7 +156,7 @@ func main() {
 	)
 
 	subtitleService := ytSubtitle.NewSubtitleService(cacheManager, logger, pythonPool)
-	preflightService := preflight.NewService(youtubeService, cacheManager, logger)
+	preflightService := preflight.NewService(youtubeService, cacheManager, logger, config.MaxExportLimit)
 	transcriptService := ytTranscript.NewService()
 	signalService := ytSignal.NewSignalService()
 
@@ -195,16 +198,16 @@ func main() {
 	resourceService := resource.NewService(youtubeService, pipelineService, logger, 2*config.PythonWorkers)
 
 	// handlers & routes
-	exportHandler := export.NewHandler(resourceService, exportService)
+	exportHandler := export.NewHandler(resourceService, exportService, preflightService, config)
 	export.RegisterRoutes(e.Group("/export"), exportHandler)
 
-	subtitleHandler := apiSubtitle.NewHandler(resourceService, subtitleService, exportService)
+	subtitleHandler := apiSubtitle.NewHandler(resourceService, subtitleService, exportService, preflightService)
 	apiSubtitle.RegisterSubtitleRoutes(e.Group("/subtitle"), subtitleHandler)
 
-	transcriptHandler := apiTranscript.NewHandler(resourceService)
+	transcriptHandler := apiTranscript.NewHandler(resourceService, preflightService)
 	e.POST("/transcript", transcriptHandler.GetTranscript)
 
-	playlistHandler := apiPlaylist.NewHandler(youtubeService)
+	playlistHandler := apiPlaylist.NewHandler(youtubeService, preflightService)
 	apiPlaylist.RegisterPlaylistRoutes(e.Group("/playlist"), playlistHandler)
 
 	preflightHandler := apiPreflight.NewHandler(preflightService)

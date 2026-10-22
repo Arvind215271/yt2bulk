@@ -2,6 +2,7 @@
 package youtube
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Arvind215271/yt2bulk/internal/api"
@@ -11,22 +12,20 @@ type Errors struct {
 	Playlist PlaylistErrors
 	Video    VideoErrors
 	Export   ExportErrors
-	URL 	URLErrors
+	URL      URLErrors
 }
 
 var Err = Errors{
 	Playlist: PlaylistErrors{},
 	Video:    VideoErrors{},
 	Export:   ExportErrors{},
-	URL: URLErrors{},	
+	URL:      URLErrors{},
 }
 
 type PlaylistErrors struct{}
 type VideoErrors struct{}
 type ExportErrors struct{}
 type URLErrors struct{}
-
-
 
 // Playlist Errors
 
@@ -62,7 +61,6 @@ func (PlaylistErrors) InvalidType() *api.AppError {
 	)
 }
 
-
 func (PlaylistErrors) NotFound() *api.AppError {
 	return api.NewError(
 		"PLAYLIST_NOT_FOUND",
@@ -97,7 +95,6 @@ func (VideoErrors) FetchFailed() *api.AppError {
 	)
 }
 
-
 // export errors
 func (ExportErrors) InvalidFormat() *api.AppError {
 	return api.NewError(
@@ -123,37 +120,44 @@ func (ExportErrors) InvalidField() *api.AppError {
 	)
 }
 
-
-
 // URL Errors
 func (URLErrors) EmptyURL() *api.AppError {
-    return api.NewError(
-        "YOUTUBE_EMPTY_URL",
-        "URL cannot be empty",
-        http.StatusBadRequest,
-    )
+	return api.NewError(
+		"YOUTUBE_EMPTY_URL",
+		"URL cannot be empty",
+		http.StatusBadRequest,
+	)
 }
 
 func (URLErrors) InvalidURL() *api.AppError {
-    return api.NewError(
-        "YOUTUBE_INVALID_URL",
-        "Invalid YouTube URL",
-        http.StatusBadRequest,
-    )
+	return api.NewError(
+		"YOUTUBE_INVALID_URL",
+		"Invalid YouTube URL",
+		http.StatusBadRequest,
+	)
 }
 
 func (URLErrors) InvalidDomain() *api.AppError {
-    return api.NewError(
-        "YOUTUBE_INVALID_DOMAIN",
-        "URL must be a YouTube URL",
-        http.StatusBadRequest,
-    )
+	return api.NewError(
+		"YOUTUBE_INVALID_DOMAIN",
+		"URL must be a YouTube URL",
+		http.StatusBadRequest,
+	)
 }
 
 func (URLErrors) MissingID() *api.AppError {
-    return api.NewError(
-        "YOUTUBE_MISSING_ID",
-        "Could not extract a YouTube resource ID from URL",
-        http.StatusBadRequest,
-    )
+	return api.NewError(
+		"YOUTUBE_MISSING_ID",
+		"Could not extract a YouTube resource ID from URL",
+		http.StatusBadRequest,
+	)
+}
+
+// Preflight Errors
+func (ExportErrors) LimitExceeded(reached, max int) *api.AppError {
+	return api.NewError(
+		"EXPORT_LIMIT_EXCEEDED",
+		"Export limit exceeded",
+		http.StatusBadRequest,
+	).AddField("reached", fmt.Sprintf("%d", reached)).AddField("max", fmt.Sprintf("%d", max))
 }

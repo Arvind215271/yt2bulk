@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/Arvind215271/yt2bulk/internal/cache"
 	"github.com/joho/godotenv"
@@ -12,9 +13,10 @@ type Config struct {
 	Env  string
 	Port string
 
-	YouTubeAPIKey string
-	YtdlpCache    cache.Config
-	PythonWorkers int
+	YouTubeAPIKey  string
+	YtdlpCache     cache.Config
+	PythonWorkers  int
+	MaxExportLimit int
 }
 
 // Load reads environment variables once and builds the config
@@ -29,12 +31,14 @@ func Load() Config {
 		YouTubeAPIKey: getEnv("YOUTUBE_API_KEY", ""),
 
 		YtdlpCache: cache.Config{
-			CacheDir: getEnv("YTDLP_CACHE_DIR", "./.cache/ytdlp"),
-			TTLDays:  getEnvAsInt("YTDLP_CACHE_TTL_DAYS", 28),
-			MaxFiles: getEnvAsInt("YTDLP_CACHE_MAX_FILES", 2000), // Updated to 2000
+			CacheDir:        getEnv("YTDLP_CACHE_DIR", "./.cache/ytdlp"),
+			TTLDays:         getEnvAsInt("YTDLP_CACHE_TTL_DAYS", 28),
+			MaxFiles:        getEnvAsInt("YTDLP_CACHE_MAX_FILES", 2000), // Updated to 2000
+			CleanupInterval: parseDuration(getEnv("YTDLP_CACHE_CLEANUP_INTERVAL", "1h")),
 		},
 
-		PythonWorkers: getEnvAsInt("PYTHON_WORKERS", 16),
+		PythonWorkers:  getEnvAsInt("PYTHON_WORKERS", 16),
+		MaxExportLimit: getEnvAsInt("MAX_EXPORT_LIMIT", 100),
 	}
 }
 
@@ -57,4 +61,13 @@ func getEnvAsInt(key string, fallback int) int {
 		return i
 	}
 	return fallback
+}
+
+// parseDuration returns fallback if env is not set or not a duration
+func parseDuration(val string) time.Duration {
+	d, err := time.ParseDuration(val)
+	if err != nil {
+		return time.Hour
+	}
+	return d
 }
