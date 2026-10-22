@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v5"
 
@@ -77,10 +78,13 @@ func main() {
 	e := echo.New()
 
 	// CORS middleware with secure specific origins
+	frontendOrigin := os.Getenv("FRONTEND_URL")
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			origin := c.Request().Header.Get("Origin")
-			if origin == "http://localhost:3000" || origin == "http://127.0.0.1:3000" {
+			if origin == "http://localhost:3000" ||
+				origin == "http://127.0.0.1:3000" ||
+				(frontendOrigin != "" && origin == frontendOrigin) {
 				c.Response().Header().Set("Access-Control-Allow-Origin", origin)
 				c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 				c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
