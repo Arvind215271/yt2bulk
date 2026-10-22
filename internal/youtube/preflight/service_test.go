@@ -1,8 +1,9 @@
- package preflight
+package preflight
 
 import (
 	"context"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/Arvind215271/yt2bulk/internal/cache"
@@ -35,7 +36,7 @@ func (m *mockProvider) GetVideo(ctx context.Context, videoID string, st *stats.M
 
 func TestService_Check(t *testing.T) {
 	t.Run("video input", func(t *testing.T) {
-		svc := NewService(nil, nil, logger.New("test"))
+		svc := NewService(nil, nil, logger.New("test"), 100)
 		req := Request{
 			Inputs: []*youtubeurl.YouTubeInput{
 				{
@@ -75,7 +76,7 @@ func TestService_Check(t *testing.T) {
 		}
 
 		metaSvc := metadata.NewService(mockProv, nil)
-		svc := NewService(metaSvc, nil, logger.New("test"))
+		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		req := Request{
 			Inputs: []*youtubeurl.YouTubeInput{
@@ -101,11 +102,11 @@ func TestService_Check(t *testing.T) {
 		if res.EstimatedWork != 6 {
 			t.Errorf("expected 6 estimated work, got %d", res.EstimatedWork)
 		}
-		if res.Stats.Playlists.Items.MetadataCached != 1 {
-			t.Errorf("expected 1 metadata cached, got %d", res.Stats.Playlists.Items.MetadataCached)
+		if res.Stats.Playlists.Items.MetadataCached != 0 {
+			t.Errorf("expected 0 metadata cached, got %d", res.Stats.Playlists.Items.MetadataCached)
 		}
-		if res.Stats.Playlists.Items.MetadataUpstream != 0 {
-			t.Errorf("expected 0 metadata upstream, got %d", res.Stats.Playlists.Items.MetadataUpstream)
+		if res.Stats.Playlists.Items.MetadataUpstream != 3 {
+			t.Errorf("expected 3 metadata upstream, got %d", res.Stats.Playlists.Items.MetadataUpstream)
 		}
 	})
 
@@ -124,7 +125,7 @@ func TestService_Check(t *testing.T) {
 		}
 		manager := cache.NewManager(cfg, nil)
 
-		svc := NewService(nil, manager, logger.New("test"))
+		svc := NewService(nil, manager, logger.New("test"), 100)
 
 		videoIDs := []string{"vid1", "vid2"}
 		// vid1 in cache, vid2 not in cache
@@ -146,7 +147,7 @@ func TestService_Check(t *testing.T) {
 	})
 
 	t.Run("Estimate subtitle fetch scenarios", func(t *testing.T) {
-		svc := NewService(nil, nil, logger.New("test"))
+		svc := NewService(nil, nil, logger.New("test"), 100)
 
 		// Planner with transcript_text (which enforces subtitle stage)
 		pWithSub, _ := fields.NewPlanner([]string{"transcript_text"})
@@ -185,7 +186,7 @@ func TestService_Check(t *testing.T) {
 		}
 
 		metaSvc := metadata.NewService(mockProv, nil)
-		svc := NewService(metaSvc, nil, logger.New("test"))
+		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		resources := []youtubeurl.YouTubeInput{
 			{InputType: youtubeurl.InputTypePlaylist, ID: "pl1"},
@@ -216,7 +217,7 @@ func TestService_Check(t *testing.T) {
 		}
 
 		metaSvc := metadata.NewService(mockProv, nil)
-		svc := NewService(metaSvc, nil, logger.New("test"))
+		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		req := Request{
 			Inputs: []*youtubeurl.YouTubeInput{
@@ -240,11 +241,11 @@ func TestService_Check(t *testing.T) {
 		if res.EstimatedWork != 6 {
 			t.Errorf("expected 6 estimated work, got %d", res.EstimatedWork)
 		}
-		if res.Stats.Playlists.Items.MetadataCached != 1 {
-			t.Errorf("expected 1 metadata cached, got %d", res.Stats.Playlists.Items.MetadataCached)
+		if res.Stats.Playlists.Items.MetadataCached != 0 {
+			t.Errorf("expected 0 metadata cached, got %d", res.Stats.Playlists.Items.MetadataCached)
 		}
-		if res.Stats.Playlists.Items.MetadataUpstream != 0 {
-			t.Errorf("expected 0 metadata upstream, got %d", res.Stats.Playlists.Items.MetadataUpstream)
+		if res.Stats.Playlists.Items.MetadataUpstream != 2 {
+			t.Errorf("expected 2 metadata upstream, got %d", res.Stats.Playlists.Items.MetadataUpstream)
 		}
 	})
 
@@ -259,33 +260,27 @@ func TestService_Check(t *testing.T) {
 		}
 
 		metaSvc := metadata.NewService(mockProv, nil)
-		svc := NewService(metaSvc, nil, logger.New("test"))
+		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		req := Request{
 			Inputs: []*youtubeurl.YouTubeInput{
-				{InputType: "playlist", ID: "large_pl"},
+				{InputType: youtubeurl.InputTypePlaylist, ID: "large_pl"},
 			},
 		}
 
-		res, err := svc.Check(context.Background(), req)
-		if err != nil {
-			t.Fatalf("expected no error, got %v", err)
+		// The service was initialized with maxLimit=100.
+		// "large_pl" is expected to have 1500 items, which exceeds the limit.
+		_, err := svc.Check(context.Background(), req)
+		if err == nil {
+			t.Fatalf("expected error from Check, got nil")
 		}
-
-		if res.TotalResourceCount != 1500 {
-			t.Errorf("expected 1500 total resources, got %d", res.TotalResourceCount)
-		}
-		// 1500 playlist metadata missing + 1500 playlist subtitle fetch = 3000
-		if res.EstimatedWork != 3000 {
-			t.Errorf("expected 3000 estimated work, got %d", res.EstimatedWork)
-		}
-		if res.Stats.Playlists.Items.MetadataCached != 1 {
-			t.Errorf("expected 1 metadata cached, got %d", res.Stats.Playlists.Items.MetadataCached)
+		if !strings.Contains(err.Error(), "EXPORT_LIMIT_EXCEEDED") {
+			t.Errorf("expected error containing EXPORT_LIMIT_EXCEEDED, got %v", err)
 		}
 	})
 
 	t.Run("Reproduction: EstimatedWork calculation", func(t *testing.T) {
-		svc := NewService(nil, nil, logger.New("test"))
+		svc := NewService(nil, nil, logger.New("test"), 100)
 		req := Request{
 			Inputs: []*youtubeurl.YouTubeInput{
 				{

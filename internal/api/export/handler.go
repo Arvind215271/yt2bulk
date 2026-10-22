@@ -2,31 +2,41 @@ package export
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 
 	"github.com/Arvind215271/yt2bulk/internal/api"
 	subtitleapi "github.com/Arvind215271/yt2bulk/internal/api/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/config"
+	"github.com/Arvind215271/yt2bulk/internal/youtube"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/export"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
 	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/pipeline"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/planner"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/resource"
 )
 
 type Handler struct {
-	resourceService *resource.Service
-	exportService   *export.Service
+	resourceService  *resource.Service
+	exportService    *export.Service
+	preflightService preflight.Service
+	cfg              config.Config
 }
 
 func NewHandler(
 	resourceService *resource.Service,
 	exportService *export.Service,
+	preflightService preflight.Service,
+	cfg config.Config,
 ) *Handler {
 	return &Handler{
-		resourceService: resourceService,
-		exportService:   exportService,
+		resourceService:  resourceService,
+		exportService:    exportService,
+		preflightService: preflightService,
+		cfg:              cfg,
 	}
 }
 
@@ -59,6 +69,33 @@ func (h *Handler) Export(c *echo.Context) error {
 		return ErrInputRequired
 	}
 
+	// Run preflight check
+	// Use ParseMany to handle multiple inputs robustly
+	// Join inputs into a single string for ParseMany
+	joinedInputs := strings.Join(req.Inputs, " ")
+	parsedResults := youtubeurl.ParseMany(joinedInputs)
+
+	parsedInputsForPreflight := make([]*youtubeurl.YouTubeInput, 0, len(parsedResults))
+	for _, res := range parsedResults {
+		if res.Input != nil {
+			parsedInputsForPreflight = append(parsedInputsForPreflight, res.Input)
+		} else {
+			// Fallback if parsing fails for an item
+			parsedInputsForPreflight = append(parsedInputsForPreflight, &youtubeurl.YouTubeInput{InputType: youtubeurl.InputTypeVideo, ID: res.Raw})
+		}
+	}
+	preflightReq := preflight.Request{Inputs: parsedInputsForPreflight}
+	ctx := c.Request().Context()
+	res, err := h.preflightService.Check(ctx, preflightReq)
+	if err != nil {
+		// Use the total resource count if available from the error/result
+		return youtube.Err.Export.LimitExceeded(res.TotalResourceCount, h.cfg.MaxExportLimit).Wrap(err)
+	}
+	if !res.Valid {
+		// Use result statistics if available
+		return youtube.Err.Export.LimitExceeded(res.TotalResourceCount, h.cfg.MaxExportLimit).Wrap(res.Error)
+	}
+
 	exportFormat, err := parseFormat(req.Format)
 	if err != nil {
 		return err
@@ -74,13 +111,11 @@ func (h *Handler) Export(c *echo.Context) error {
 		return api.Err.Common.BadRequest("invalid subtitle preferences").Wrap(err)
 	}
 
-	inputs := make([]youtubeurl.YouTubeInput, len(req.Inputs))
-	for i, in := range req.Inputs {
-		parsed, err := youtubeurl.Parse(in)
-		if err == nil && parsed != nil {
-			inputs[i] = *parsed
-		} else {
-			inputs[i] = youtubeurl.YouTubeInput{InputType: youtubeurl.InputTypeVideo, ID: in}
+	// Reuse parsed inputs for execution
+	inputs := make([]youtubeurl.YouTubeInput, 0, len(parsedInputsForPreflight))
+	for _, p := range parsedInputsForPreflight {
+		if p != nil {
+			inputs = append(inputs, *p)
 		}
 	}
 
@@ -96,7 +131,7 @@ func (h *Handler) Export(c *echo.Context) error {
 		Signal:        req.Signal,
 	}
 
-	ctx := c.Request().Context()
+	ctx = c.Request().Context()
 
 	resources, stats := h.resourceService.ProcessResourcesWithStats(ctx, inputs, pipelineReq)
 

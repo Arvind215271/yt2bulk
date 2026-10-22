@@ -37,6 +37,24 @@ export default function AboutPage() {
         </div>
 
         <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Why Run Locally?</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', color: theme.colors.textMuted, fontSize: '0.95rem', lineHeight: '1.6' }}>
+            <p>
+              Running <strong style={{ color: theme.colors.textMain }}>YT2BULK</strong> locally on your own machine gives you full, unrestricted access to YouTube data pipelines without the constraints of hosted demo or live versions:
+            </p>
+            <p>
+              <strong style={{ color: theme.colors.textMain }}>1. Zero Export & Request Limits:</strong> Hosted public or demo versions often enforce strict limits per export request, concurrency limits, or rate limits to prevent resource exhaustion. Running locally means your hardware and network call the shots—export massive playlists, fetch endless transcripts, and process bulk data without artificial caps.
+            </p>
+            <p>
+              <strong style={{ color: theme.colors.textMain }}>2. Full Privacy & Control:</strong> Your queries, exports, and transcript analyses stay entirely on your machine. No tracking, no external logging, and full autonomy over configuration and caching.
+            </p>
+            <p>
+              <strong style={{ color: theme.colors.textMain }}>3. Persistent Python & yt-dlp Workers:</strong> Local instances leverage persistent local Python workers and native Go concurrency, avoiding cold starts and cloud timeouts.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: theme.colors.panelBg, border: `1px solid ${theme.colors.borderColor}`, borderRadius: theme.spacing.borderRadius, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Pages</h2>
           <ul style={{ paddingLeft: '1.25rem', color: theme.colors.textMuted, fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', lineHeight: '1.5' }}>
             <li><strong style={{ color: theme.colors.textMain }}>Home (`/`)</strong>: Main entry point.</li>

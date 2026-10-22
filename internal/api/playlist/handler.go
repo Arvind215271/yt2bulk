@@ -6,16 +6,19 @@ import (
 	"github.com/Arvind215271/yt2bulk/internal/api"
 	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
 	"github.com/labstack/echo/v5"
 )
 
 type Handler struct {
-	youtubeService *metadata.Service
+	youtubeService   *metadata.Service
+	preflightService preflight.Service
 }
 
-func NewHandler(youtubeService *metadata.Service) *Handler {
+func NewHandler(youtubeService *metadata.Service, preflightService preflight.Service) *Handler {
 	return &Handler{
-		youtubeService: youtubeService,
+		youtubeService:   youtubeService,
+		preflightService: preflightService,
 	}
 }
 
@@ -29,6 +32,7 @@ func (h *Handler) ExpandPlaylistVideos(c *echo.Context) error {
 		return err
 	}
 
+	// Add Preflight Check
 	parsed, err := youtubeurl.Parse(req.URL)
 	if err != nil {
 		return Err.InvalidURL().Wrap(err)
@@ -48,6 +52,17 @@ func (h *Handler) ExpandPlaylistVideos(c *echo.Context) error {
 	}
 
 	ctx := (*c).Request().Context()
+
+	// Preflight check
+	preflightReq := preflight.Request{Inputs: []*youtubeurl.YouTubeInput{parsed}}
+	res, err := h.preflightService.Check(ctx, preflightReq)
+	if err != nil {
+		return err // Return preflight error directly
+	}
+	if !res.Valid {
+		return res.Error // Return preflight validation error
+	}
+
 	items, err := h.youtubeService.GetPlaylistItems(ctx, parsed.ID, 50, providerType)
 	if err != nil {
 		return Err.FetchFailed(err)

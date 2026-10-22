@@ -5,11 +5,13 @@ import (
 
 	"github.com/Arvind215271/yt2bulk/internal/api"
 	subtitleapi "github.com/Arvind215271/yt2bulk/internal/api/subtitle"
+	"github.com/Arvind215271/yt2bulk/internal/youtube/signal"
 )
 
 type TranscriptRequest struct {
 	Inputs      []string                                `json:"inputs" validate:"required,min=1"`
 	Preferences []subtitleapi.SubtitlePreferenceRequest `json:"preferences,omitempty"`
+	Signal      *signal.SignalRequest                   `json:"signal,omitempty"`
 }
 
 type TranscriptErrors struct{}

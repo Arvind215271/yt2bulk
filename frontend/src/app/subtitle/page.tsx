@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import { theme } from '@/theme/theme';
+import { useError } from '@/components/ErrorContext';
 
 interface SubtitleTrack {
   languageCode: string;
@@ -26,10 +27,10 @@ interface SubtitlePreference {
 }
 
 export default function SubtitlePage() {
+  const { addError } = useError();
   const [inputs, setInputs] = useState('');
   const [loading, setLoading] = useState(false);
   const [rawResponseData, setRawResponseData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrefs, setSelectedPrefs] = useState<SubtitlePreference[]>([]);
@@ -48,19 +49,17 @@ export default function SubtitlePage() {
     }
     setLoading(false);
     setDownloading(false);
-    setError('Request cancelled by user.');
   };
 
   const handleFetchOptions = async (e: React.FormEvent) => {
     e.preventDefault();
     const list = inputs.split('\n').map(s => s.trim()).filter(Boolean);
     if (list.length === 0) {
-      alert('Please enter at least one YouTube video or playlist link/ID.');
+      addError('Please enter at least one YouTube video or playlist link/ID.');
       return;
     }
 
     setLoading(true);
-    setError(null);
     setRawResponseData(null);
     setSelectedPrefs([]);
 
@@ -84,10 +83,8 @@ export default function SubtitlePage() {
       const parsed = JSON.parse(text);
       setRawResponseData(parsed);
     } catch (err: any) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) {
-        setError('Subtitle options fetch cancelled.');
-      } else {
-        setError(err.message);
+      if (err.name !== 'AbortError' && !err.message?.includes('aborted')) {
+        addError(err.message, { context: 'subtitle_options' });
       }
     } finally {
       setLoading(false);
@@ -281,12 +278,12 @@ export default function SubtitlePage() {
     e.preventDefault();
     const list = inputs.split('\n').map(s => s.trim()).filter(Boolean);
     if (list.length === 0) {
-      alert('Please enter your YouTube links first.');
+      addError('Please enter your YouTube links first.');
       return;
     }
 
     if (selectedPrefs.length === 0) {
-      alert('Please select at least one subtitle preference from the options list.');
+      addError('Please select at least one subtitle preference from the options list.');
       return;
     }
 
@@ -327,10 +324,8 @@ export default function SubtitlePage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) {
-        setError('Subtitle download cancelled by user.');
-      } else {
-        alert('Error downloading subtitles: ' + err.message);
+      if (err.name !== 'AbortError' && !err.message?.includes('aborted')) {
+        addError(err.message, { context: 'subtitle_download' });
       }
     } finally {
       setDownloading(false);
@@ -421,12 +416,6 @@ export default function SubtitlePage() {
             </div>
           </div>
         </form>
-
-        {error && (
-          <div style={{ backgroundColor: 'rgba(255, 30, 30, 0.1)', border: `1px solid ${theme.colors.primaryRed}`, borderRadius: '6px', padding: '1rem', color: theme.colors.primaryRed }}>
-            <strong>Error:</strong> {error}
-          </div>
-        )}
 
         {/* Step 2: Dedicated Selected Preferences Box (Draggable) */}
         {rawResponseData && (

@@ -62,3 +62,5 @@ __pycache__/
 tmp
 # Temporary files and builds
 tmp/
+
+cookies.txt

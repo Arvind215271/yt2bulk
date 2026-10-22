@@ -5,8 +5,10 @@ import Header from '@/components/Header';
 import { theme } from '@/theme/theme';
 import { checkPreflight, PreflightResponse } from '@/services/preflight';
 import PreflightResultCard from '@/components/PreflightResultCard';
+import { useError } from '@/components/ErrorContext';
 
 export default function PreflightPage() {
+  const { addError } = useError();
   const [inputs, setInputs] = useState('');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<PreflightResponse | null>(null);
@@ -17,7 +19,9 @@ export default function PreflightPage() {
     e.preventDefault();
     const list = inputs.split('\n').map((s: string) => s.trim()).filter(Boolean);
     if (list.length === 0) {
-      setError('Please enter at least one YouTube link or ID.');
+      const msg = 'Please enter at least one YouTube link or ID.';
+      setError(msg);
+      addError(msg);
       return;
     }
 
@@ -33,7 +37,10 @@ export default function PreflightPage() {
       setData(result);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
-        setError(err.message || 'An unexpected error occurred.');
+        const msg = err.message || 'An unexpected error occurred.';
+        setError(msg);
+        const details = err.details?.data || err.details;
+        addError(msg, details);
       }
     } finally {
       setLoading(false);

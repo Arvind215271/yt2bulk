@@ -28,6 +28,11 @@ func (m *MockService) Check(ctx context.Context, req preflight.Request) (preflig
 	return args.Get(0).(preflight.Result), args.Error(1)
 }
 
+func (m *MockService) GetMaxLimit() int {
+	args := m.Called()
+	return args.Int(0)
+}
+
 func TestHandler_Check(t *testing.T) {
 	e := echo.New()
 
@@ -76,6 +81,8 @@ func TestHandler_Check(t *testing.T) {
 
 	t.Run("Invalid request returns error", func(t *testing.T) {
 		mockSvc := new(MockService)
+		// Set expectation for GetMaxLimit if needed by any code path
+		mockSvc.On("GetMaxLimit").Return(100)
 		h := NewHandler(mockSvc)
 
 		reqBody := `{"inputs": []}`
@@ -102,7 +109,7 @@ func TestHandler_Check(t *testing.T) {
 		// 3. Setup Real preflight.Service
 		// preflight.Service requires a cache.Manager and logger. We'll use a nil one for this test
 		// as cache behavior is not part of this specific integration path test.
-		preflightSvc := preflight.NewService(metaSvc, nil, nil)
+		preflightSvc := preflight.NewService(metaSvc, nil, nil, 100)
 
 		// 4. Setup Real Handler
 		h := NewHandler(preflightSvc)
@@ -116,7 +123,7 @@ func TestHandler_Check(t *testing.T) {
 		mockYtdlp.On("GetPlaylistMetadata", mock.Anything, "pl1", mock.Anything).Run(func(args mock.Arguments) {
 			st := args.Get(2).(*stats.MetadataStats)
 			st.Attempts = 2
-			st.Successes = 2
+			st.Successes = 1
 		}).Return(youtube.Playlist{ID: "pl1", ItemCount: 2}, nil)
 
 		rec := httptest.NewRecorder()
@@ -135,8 +142,8 @@ func TestHandler_Check(t *testing.T) {
 		assert.True(t, resp.Valid)
 		assert.Equal(t, 0, resp.UniqueVideoCount)
 		assert.Equal(t, 2, resp.TotalResourceCount)
-		assert.Equal(t, 3, resp.Combined.MetadataCached)
-		assert.Equal(t, 0, resp.Combined.MetadataUpstream)
+		assert.Equal(t, 0, resp.Combined.MetadataCached)
+		assert.Equal(t, 2, resp.Combined.MetadataUpstream)
 		mockYtdlp.AssertExpectations(t)
 	})
 
@@ -148,7 +155,7 @@ func TestHandler_Check(t *testing.T) {
 		metaSvc := metadata.NewService(nil, mockYtdlp)
 
 		// 3. Setup Real preflight.Service
-		preflightSvc := preflight.NewService(metaSvc, nil, nil)
+		preflightSvc := preflight.NewService(metaSvc, nil, nil, 100)
 
 		// 4. Setup Real Handler
 		h := NewHandler(preflightSvc)
@@ -181,8 +188,8 @@ func TestHandler_Check(t *testing.T) {
 		assert.True(t, resp.Valid)
 		assert.Equal(t, 0, resp.UniqueVideoCount)
 		assert.Equal(t, 2, resp.TotalResourceCount)
-		assert.Equal(t, 2, resp.Combined.MetadataCached)
-		assert.Equal(t, 0, resp.Combined.MetadataUpstream)
+		assert.Equal(t, 0, resp.Combined.MetadataCached)
+		assert.Equal(t, 2, resp.Combined.MetadataUpstream)
 		mockYtdlp.AssertExpectations(t)
 	})
 }

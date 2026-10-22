@@ -3,6 +3,7 @@ package preflight
 import (
 	"net/http"
 
+	// "github.com/Arvind215271/yt2bulk/internal/youtube"
 	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
 	"github.com/labstack/echo/v5"
@@ -28,6 +29,10 @@ func (h *Handler) Check(c *echo.Context) error {
 		return Err.BadRequest("inputs required")
 	}
 
+	// NOTE: The preflight service now internally enforces the limit
+	// during resource resolution. If the limit is exceeded,
+	// it will return an error that we can map or handle appropriately.
+
 	var parsedInputs []*youtubeurl.YouTubeInput
 	for _, inputStr := range req.Inputs {
 		parsed, err := youtubeurl.Parse(inputStr)
@@ -44,7 +49,10 @@ func (h *Handler) Check(c *echo.Context) error {
 	ctx := (*c).Request().Context()
 	result, err := h.preflightService.Check(ctx, preflightReq)
 	if err != nil {
-		return Err.InternalError(err)
+		return Err.BadRequest(err.Error()).Wrap(err)
+	}
+	if !result.Valid {
+		return Err.BadRequest(result.Error.Error()).Wrap(result.Error)
 	}
 
 	return (*c).JSON(http.StatusOK, PreflightResponse{
