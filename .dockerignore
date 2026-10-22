@@ -1,0 +1,9 @@
+.git
+.github
+.env
+venv
+frontend/node_modules
+frontend/.next
+frontend/out
+.cache
+*.log
