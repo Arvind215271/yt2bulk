@@ -15,7 +15,15 @@ func TestPlayerClient_IsValid(t *testing.T) {
 		{PlayerClientVisionOS, true},
 		{PlayerClientTVSamsung, true},
 		{PlayerClientAll, true},
-		{PlayerClientWeb, false},
+		{PlayerClientWeb, true},
+		{PlayerClientWebSafari, true},
+		{PlayerClientWebEmbedded, true},
+		{PlayerClientMWeb, true},
+		{PlayerClientIOS, true},
+		{PlayerClientTV, true},
+		{PlayerClientTVSimply, true},
+		{PlayerClientTVEmbedded, true},
+		{PlayerClientAndroidSDKLess, true},
 		{PlayerClient("invalid"), false},
 	}
 
