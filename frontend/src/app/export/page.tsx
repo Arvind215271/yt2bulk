@@ -420,6 +420,8 @@ export default function ExportPage() {
                 <option value="tv">TV</option>
                 <option value="tv_simply">TV Simply</option>
                 <option value="tv_embedded">TV Embedded</option>
+                <option value="visionos">VisionOS</option>
+                <option value="tv_samsung">TV Samsung</option>
                 <option value="all">All</option>
               </select>
             </div>
