@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 	"github.com/Arvind215271/yt2bulk/internal/youtube"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
@@ -38,7 +39,8 @@ func TestHandler_Check(t *testing.T) {
 
 	t.Run("Valid request returns success", func(t *testing.T) {
 		mockSvc := new(MockService)
-		h := NewHandler(mockSvc)
+		lg := logger.New("test")
+		h := NewHandler(mockSvc, lg)
 
 		reqBody := `{"inputs": ["https://youtube.com/watch?v=123"]}`
 		req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(reqBody))
@@ -83,7 +85,8 @@ func TestHandler_Check(t *testing.T) {
 		mockSvc := new(MockService)
 		// Set expectation for GetMaxLimit if needed by any code path
 		mockSvc.On("GetMaxLimit").Return(100)
-		h := NewHandler(mockSvc)
+		lg := logger.New("test")
+		h := NewHandler(mockSvc, lg)
 
 		reqBody := `{"inputs": []}`
 		req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(reqBody))
@@ -103,16 +106,17 @@ func TestHandler_Check(t *testing.T) {
 		// We'll create a simple mock for the Provider interface used by metadata.Service
 		mockYtdlp := new(MockYtdlpProvider) // This will be defined below
 
+		// 4. Setup Real Handler
+		lg := logger.New("test")
+
 		// 2. Setup Real metadata.Service
-		metaSvc := metadata.NewService(nil, mockYtdlp)
+		metaSvc := metadata.NewService(nil, mockYtdlp, lg)
 
 		// 3. Setup Real preflight.Service
 		// preflight.Service requires a cache.Manager and logger. We'll use a nil one for this test
 		// as cache behavior is not part of this specific integration path test.
 		preflightSvc := preflight.NewService(metaSvc, nil, nil, 100)
-
-		// 4. Setup Real Handler
-		h := NewHandler(preflightSvc)
+		h := NewHandler(preflightSvc, lg)
 
 		// 5. Setup Request
 		reqBody := `{"inputs": ["https://youtube.com/playlist?list=pl1"]}`
@@ -151,14 +155,15 @@ func TestHandler_Check(t *testing.T) {
 		// 1. Setup Test Double for ytdlp.Provider
 		mockYtdlp := new(MockYtdlpProvider)
 
+		// 4. Setup Real Handler
+		lg := logger.New("test")
+
 		// 2. Setup Real metadata.Service
-		metaSvc := metadata.NewService(nil, mockYtdlp)
+		metaSvc := metadata.NewService(nil, mockYtdlp, lg)
 
 		// 3. Setup Real preflight.Service
 		preflightSvc := preflight.NewService(metaSvc, nil, nil, 100)
-
-		// 4. Setup Real Handler
-		h := NewHandler(preflightSvc)
+		h := NewHandler(preflightSvc, lg)
 
 		// 5. Setup Request
 		reqBody := `{"inputs": ["https://youtube.com/playlist?list=pl1"]}`

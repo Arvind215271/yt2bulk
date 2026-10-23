@@ -116,7 +116,7 @@ func (s *ServiceImpl) EstimateResource(ctx context.Context, resources []youtubeu
 
 func (s *ServiceImpl) estimateOverall(ctx context.Context, videoIDs []string) (EstimationResult, error) {
 	// Fetch default planner for estimation
-	fieldPlanner, err := fields.NewPlanner([]string{})
+	fieldPlanner, err := fields.NewPlanner([]string{}, s.logger)
 	if err != nil {
 		return EstimationResult{}, fmt.Errorf("failed to create planner: %w", err)
 	}

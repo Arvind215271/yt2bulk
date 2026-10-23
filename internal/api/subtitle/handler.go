@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 	"github.com/Arvind215271/yt2bulk/internal/youtube"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/export"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
@@ -23,6 +24,7 @@ type Handler struct {
 	subtitleService  *subtitle.SubtitleService
 	exportService    *export.Service
 	preflightService preflight.Service
+	logger           *logger.Logger
 }
 
 func NewHandler(
@@ -30,22 +32,28 @@ func NewHandler(
 	subtitleService *subtitle.SubtitleService,
 	exportService *export.Service,
 	preflightService preflight.Service,
+	logger *logger.Logger,
 ) *Handler {
 	return &Handler{
 		resourceService:  resourceService,
 		subtitleService:  subtitleService,
 		exportService:    exportService,
 		preflightService: preflightService,
+		logger:           logger,
 	}
 }
 
 func (h *Handler) GetSubtitleOptions(c *echo.Context) error {
 	var req SubtitleOptionsRequest
 	if err := c.Bind(&req); err != nil {
+		h.logger.Error("failed to bind subtitle options request", "err", err)
 		return Err.BadRequest("invalid request body").Wrap(err)
 	}
 
+	h.logger.Info("received subtitle options request", "inputs_count", len(req.Inputs), "inputs", req.Inputs)
+
 	if len(req.Inputs) == 0 {
+		h.logger.Error("no inputs provided for subtitle options")
 		return Err.BadRequest("inputs required")
 	}
 
@@ -62,13 +70,15 @@ func (h *Handler) GetSubtitleOptions(c *echo.Context) error {
 	ctx := c.Request().Context()
 	res, err := h.preflightService.Check(ctx, preflightReq)
 	if err != nil {
+		h.logger.Error("preflight check failed", "err", err)
 		return Err.BadRequest(err.Error()).Wrap(err)
 	}
 	if !res.Valid {
+		h.logger.Error("preflight check invalid", "err", res.Error)
 		return Err.BadRequest(res.Error.Error()).Wrap(res.Error)
 	}
 
-	fieldPlanner, err := fields.NewPlanner([]string{"id", "subtitle_metadata"})
+	fieldPlanner, err := fields.NewPlanner([]string{"id", "subtitle_metadata"}, h.logger)
 	if err != nil {
 		return err
 	}
@@ -90,13 +100,16 @@ func (h *Handler) GetSubtitleOptions(c *echo.Context) error {
 		ExecutionPlan: executionPlan,
 	}
 
+	h.logger.Info("processing resources for subtitle options", "count", len(inputs))
 	resources := h.resourceService.ProcessResources(ctx, inputs, pipelineReq)
 
 	data, err := h.exportService.ExportBatchResource(resources, export.FormatJSON, fieldPlanner, nil)
 	if err != nil {
+		h.logger.Error("failed to export batch resource for subtitle options", "err", err)
 		return err
 	}
 
+	h.logger.Info("successfully generated subtitle options response", "data_size", len(data))
 	contentType := "application/json"
 
 	return c.Blob(
@@ -109,10 +122,12 @@ func (h *Handler) GetSubtitleOptions(c *echo.Context) error {
 func (h *Handler) DownloadSubtitle(c *echo.Context) error {
 	var req SubtitleDownloadRequest
 	if err := c.Bind(&req); err != nil {
+		h.logger.Error("failed to bind download request", "err", err)
 		return Err.BadRequest("invalid request body").Wrap(err)
 	}
 
 	if len(req.Inputs) == 0 {
+		h.logger.Error("no inputs provided for download")
 		return Err.BadRequest("inputs required")
 	}
 
@@ -129,6 +144,7 @@ func (h *Handler) DownloadSubtitle(c *echo.Context) error {
 	ctx := c.Request().Context()
 	_, err := h.preflightService.Check(ctx, preflightReq)
 	if err != nil {
+		h.logger.Error("preflight check failed for download", "err", err)
 		return Err.BadRequest(err.Error()).Wrap(err)
 	}
 
@@ -160,13 +176,14 @@ func (h *Handler) DownloadSubtitle(c *echo.Context) error {
 		return Err.MixedResourcesNotAllowed()
 	}
 
-	fieldPlanner, err := fields.NewPlanner([]string{"id", "title", "subtitle_metadata"})
+	fieldPlanner, err := fields.NewPlanner([]string{"id", "title", "subtitle_metadata"}, h.logger)
 	if err != nil {
 		return err
 	}
 
 	preferences, err := BuildPreferences(req.Preferences)
 	if err != nil {
+		h.logger.Error("failed to build preferences", "err", err)
 		return Err.InvalidPreference(err)
 	}
 

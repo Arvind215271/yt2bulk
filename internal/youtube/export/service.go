@@ -3,6 +3,7 @@ package export
 import (
 	"sync"
 
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 	"github.com/Arvind215271/yt2bulk/internal/youtube"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
@@ -13,12 +14,14 @@ import (
 type Service struct {
 	exporters map[Format]Exporter
 	mu        sync.RWMutex
+	logger    *logger.Logger
 }
 
 // NewService creates the export service with registered exporters.
-func NewService() *Service {
+func NewService(logger *logger.Logger) *Service {
 	s := &Service{
 		exporters: make(map[Format]Exporter),
+		logger:    logger,
 	}
 	s.RegisterExporter(FormatJSON, &JSONExporter{Pretty: true})
 	s.RegisterExporter(FormatCSV, &CSVExporter{})
@@ -45,6 +48,9 @@ func (s *Service) ExportPlaylist(
 
 	data, err := BuildPlaylist(playlist, req.VideoFields)
 	if err != nil {
+		if s.logger != nil {
+			s.logger.Error("failed to build playlist for export", "error", err, "playlist_id", playlist.ID)
+		}
 		return nil, err
 	}
 
@@ -59,6 +65,9 @@ func (s *Service) ExportVideo(
 
 	data, err := BuildVideo(video, req.Fields)
 	if err != nil {
+		if s.logger != nil {
+			s.logger.Error("failed to build video for export", "error", err, "video_id", video.ID)
+		}
 		return nil, err
 	}
 
@@ -73,6 +82,9 @@ func (s *Service) ExportBatchVideos(
 
 	data, err := BuildBatchVideo(videos, req.VideoFields)
 	if err != nil {
+		if s.logger != nil {
+			s.logger.Error("failed to build batch video for export", "error", err, "videos_count", len(videos))
+		}
 		return nil, err
 	}
 
@@ -88,6 +100,9 @@ func (s *Service) ExportResource(
 
 	data, err := BuildResource(resource, planner)
 	if err != nil {
+		if s.logger != nil {
+			s.logger.Error("failed to build resource for export", "error", err, "resource_id", resource.ID)
+		}
 		return nil, err
 	}
 
@@ -104,6 +119,9 @@ func (s *Service) ExportBatchResource(
 
 	data, err := BuildBatchResource(resources, planner)
 	if err != nil {
+		if s.logger != nil {
+			s.logger.Error("failed to build batch resource for export", "error", err, "resources_count", len(resources))
+		}
 		return nil, err
 	}
 
@@ -131,5 +149,16 @@ func (s *Service) exportData(format Format, data ExportData) ([]byte, error) {
 		}
 	}
 
-	return exporter.Export(data)
+	res, err := exporter.Export(data)
+	if err != nil {
+		if s.logger != nil {
+			s.logger.Error("failed to export data", "error", err, "format", format)
+		}
+		return nil, err
+	}
+
+	if s.logger != nil {
+		s.logger.Info("data exported successfully", "format", format, "size", len(res))
+	}
+	return res, nil
 }

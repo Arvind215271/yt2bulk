@@ -9,6 +9,7 @@ import (
 	"github.com/Arvind215271/yt2bulk/internal/api"
 	subtitleapi "github.com/Arvind215271/yt2bulk/internal/api/subtitle"
 	"github.com/Arvind215271/yt2bulk/internal/config"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 	"github.com/Arvind215271/yt2bulk/internal/youtube"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/export"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/fields"
@@ -24,6 +25,7 @@ type Handler struct {
 	exportService    *export.Service
 	preflightService preflight.Service
 	cfg              config.Config
+	logger           *logger.Logger
 }
 
 func NewHandler(
@@ -31,12 +33,14 @@ func NewHandler(
 	exportService *export.Service,
 	preflightService preflight.Service,
 	cfg config.Config,
+	logger *logger.Logger,
 ) *Handler {
 	return &Handler{
 		resourceService:  resourceService,
 		exportService:    exportService,
 		preflightService: preflightService,
 		cfg:              cfg,
+		logger:           logger,
 	}
 }
 
@@ -60,12 +64,16 @@ func (h *Handler) Export(c *echo.Context) error {
 	var req ExportRequest
 
 	if err := c.Bind(&req); err != nil {
+		h.logger.Error("failed to bind export request", "err", err)
 		return api.Err.Common.
 			BadRequest("invalid request body").
 			Wrap(err)
 	}
 
+	h.logger.Info("received export request", "inputs_count", len(req.Inputs), "format", req.Format)
+
 	if len(req.Inputs) == 0 {
+		h.logger.Error("no inputs provided for export")
 		return ErrInputRequired
 	}
 
@@ -88,11 +96,11 @@ func (h *Handler) Export(c *echo.Context) error {
 	ctx := c.Request().Context()
 	res, err := h.preflightService.Check(ctx, preflightReq)
 	if err != nil {
-		// Use the total resource count if available from the error/result
+		h.logger.Error("preflight check failed in export", "err", err)
 		return youtube.Err.Export.LimitExceeded(res.TotalResourceCount, h.cfg.MaxExportLimit).Wrap(err)
 	}
 	if !res.Valid {
-		// Use result statistics if available
+		h.logger.Error("preflight check invalid in export", "err", res.Error)
 		return youtube.Err.Export.LimitExceeded(res.TotalResourceCount, h.cfg.MaxExportLimit).Wrap(res.Error)
 	}
 
@@ -101,7 +109,7 @@ func (h *Handler) Export(c *echo.Context) error {
 		return err
 	}
 
-	fieldPlanner, err := fields.NewPlanner(req.Fields)
+	fieldPlanner, err := fields.NewPlanner(req.Fields, h.logger)
 	if err != nil {
 		return err
 	}
@@ -133,12 +141,16 @@ func (h *Handler) Export(c *echo.Context) error {
 
 	ctx = c.Request().Context()
 
+	h.logger.Info("processing resources with stats for export", "count", len(inputs))
 	resources, stats := h.resourceService.ProcessResourcesWithStats(ctx, inputs, pipelineReq)
 
 	data, err := h.exportService.ExportBatchResource(resources, exportFormat, fieldPlanner, &stats)
 	if err != nil {
+		h.logger.Error("failed to export batch resource", "err", err)
 		return err
 	}
+
+	h.logger.Info("successfully completed export request", "data_size", len(data), "format", exportFormat)
 
 	contentType := "application/json"
 	switch exportFormat {

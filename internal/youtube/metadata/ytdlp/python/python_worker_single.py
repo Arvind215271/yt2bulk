@@ -56,7 +56,7 @@ YDL_OPTS = {
     "retries": 0,
     "lazy_playlist": True,
     "noprogress": True,
-    "cookiefile": "/home/arvind-saini/Projects/yt2bulk/cookies.txt",
+    # "cookiefile": "/home/arvind-saini/Projects/yt2bulk/cookies.txt",
     "extractor_args": {
         "youtube": {
             "player_client": ["android"],

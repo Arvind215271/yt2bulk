@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/Arvind215271/yt2bulk/internal/logger"
@@ -43,9 +44,10 @@ func (m *Manager) Exists(id, filename string) bool {
 func (m *Manager) Get(id, filename string) ([]byte, error) {
 	path := m.GetPath(id, filename)
 	info, err := os.Stat(path)
-	if os.IsNotExist(err) {
+	if err != nil {
 		return nil, err
 	}
+
 	if time.Since(info.ModTime()) > time.Duration(m.config.TTLDays)*24*time.Hour {
 		return nil, os.ErrNotExist
 	}
@@ -53,15 +55,23 @@ func (m *Manager) Get(id, filename string) ([]byte, error) {
 }
 
 func (m *Manager) Save(id, filename string, data []byte) error {
-	dir := filepath.Dir(m.GetPath(id, filename))
+	path := m.GetPath(id, filename)
+	dir := filepath.Dir(path)
+
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
-	return os.WriteFile(m.GetPath(id, filename), data, 0644)
+
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		return err
+	}
+
+	now := time.Now()
+	return os.Chtimes(dir, now, now)
 }
 
 func (m *Manager) VideoKey() string {
-	return "metadata." + ".json"
+	return "metadata.json"
 }
 
 // HasMetadata checks if valid metadata exists for a given video ID.
@@ -72,20 +82,34 @@ func (m *Manager) HasMetadata(id string) bool {
 // HasSubtitle checks if any subtitle file exists for a given video ID.
 func (m *Manager) HasSubtitle(id string) bool {
 	dir := filepath.Join(m.config.CacheDir, id)
+
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return false
 	}
+
+	ttl := time.Duration(m.config.TTLDays) * 24 * time.Hour
+
 	for _, entry := range entries {
-		if !entry.IsDir() && len(entry.Name()) > 10 && entry.Name()[0:10] == "subtitles." {
+		if entry.IsDir() || !strings.HasPrefix(entry.Name(), "subtitles.") {
+			continue
+		}
+
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+
+		if time.Since(info.ModTime()) <= ttl {
 			return true
 		}
 	}
+
 	return false
 }
 
 func (m *Manager) PlaylistKey() string {
-	return "playlist." + ".json"
+	return "playlist.json"
 }
 
 func (m *Manager) PlaylistMetadataKey() string {
@@ -125,12 +149,15 @@ func (m *Manager) SubtitlePath(subType string) string {
 // Cache entries may be either files or directories. Expiration and capacity
 // are determined using the modification time of the entry itself.
 func (m *Manager) Cleanup() error {
+	m.logger.Info("starting cache cleanup", "cache_dir", m.config.CacheDir)
 	entries, err := os.ReadDir(m.config.CacheDir)
 	if err != nil {
 		if os.IsNotExist(err) {
+			m.logger.Info("cache directory does not exist, skipping cleanup", "cache_dir", m.config.CacheDir)
 			return nil
 		}
 
+		m.logger.Error("failed to read cache directory during cleanup", "err", err, "cache_dir", m.config.CacheDir)
 		return err
 	}
 
@@ -161,7 +188,9 @@ func (m *Manager) Cleanup() error {
 
 		// TTL-based eviction.
 		if now.Sub(info.ModTime()) > ttl {
+			m.logger.Info("evicting expired cache entry", "path", path, "mod_time", info.ModTime(), "age", now.Sub(info.ModTime()))
 			if err := os.RemoveAll(path); err != nil {
+				m.logger.Error("failed to remove expired cache entry", "path", path, "err", err)
 				return err
 			}
 

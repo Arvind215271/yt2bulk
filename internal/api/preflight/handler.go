@@ -3,7 +3,7 @@ package preflight
 import (
 	"net/http"
 
-	// "github.com/Arvind215271/yt2bulk/internal/youtube"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 	youtubeurl "github.com/Arvind215271/yt2bulk/internal/youtube/input"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/preflight"
 	"github.com/labstack/echo/v5"
@@ -11,21 +11,27 @@ import (
 
 type Handler struct {
 	preflightService preflight.Service
+	logger           *logger.Logger
 }
 
-func NewHandler(preflightService preflight.Service) *Handler {
+func NewHandler(preflightService preflight.Service, logger *logger.Logger) *Handler {
 	return &Handler{
 		preflightService: preflightService,
+		logger:           logger,
 	}
 }
 
 func (h *Handler) Check(c *echo.Context) error {
 	var req PreflightRequest
 	if err := (*c).Bind(&req); err != nil {
+		h.logger.Error("failed to bind preflight request", "err", err)
 		return Err.BadRequest("invalid request body").Wrap(err)
 	}
 
+	h.logger.Info("received preflight request", "inputs_count", len(req.Inputs))
+
 	if len(req.Inputs) == 0 {
+		h.logger.Error("no inputs provided for preflight")
 		return Err.BadRequest("inputs required")
 	}
 
@@ -49,11 +55,15 @@ func (h *Handler) Check(c *echo.Context) error {
 	ctx := (*c).Request().Context()
 	result, err := h.preflightService.Check(ctx, preflightReq)
 	if err != nil {
+		h.logger.Error("preflight check execution failed", "err", err)
 		return Err.BadRequest(err.Error()).Wrap(err)
 	}
 	if !result.Valid {
+		h.logger.Error("preflight check result invalid", "err", result.Error)
 		return Err.BadRequest(result.Error.Error()).Wrap(result.Error)
 	}
+
+	h.logger.Info("preflight check completed successfully", "unique_videos", result.UniqueVideoCount, "total_resources", result.TotalResourceCount)
 
 	return (*c).JSON(http.StatusOK, PreflightResponse{
 		Valid:              result.Valid,

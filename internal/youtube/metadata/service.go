@@ -3,6 +3,7 @@ package metadata
 import (
 	"context"
 
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 	"github.com/Arvind215271/yt2bulk/internal/youtube"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
 )
@@ -10,15 +11,18 @@ import (
 type Service struct {
 	apiProvider   Provider
 	ytdlpProvider Provider
+	logger        *logger.Logger
 }
 
 func NewService(
 	apiProvider Provider,
 	ytdlpProvider Provider,
+	logger *logger.Logger,
 ) *Service {
 	return &Service{
 		apiProvider:   apiProvider,
 		ytdlpProvider: ytdlpProvider,
+		logger:        logger,
 	}
 }
 
@@ -50,6 +54,7 @@ func (s *Service) GetPlaylistMetadataWithStats(
 
 	if err != nil {
 		st.Failures++
+		s.logger.With("playlist_id", playlistID, "error", err).Warn("Failed to fetch playlist metadata")
 		return youtube.Playlist{}, st, err
 	}
 
@@ -95,6 +100,7 @@ func (s *Service) GetPlaylistItemsWithStats(
 
 	if err != nil {
 		st.Failures++
+		s.logger.With("playlist_id", playlistID, "error", err).Warn("Failed to fetch playlist items")
 		return nil, st, err
 	}
 
@@ -140,6 +146,7 @@ func (s *Service) GetVideoWithStats(
 
 	if err != nil {
 		st.Failures++
+		s.logger.With("video_id", videoID, "error", err).Warn("Failed to fetch video metadata")
 		return youtube.Video{}, st, err
 	}
 
