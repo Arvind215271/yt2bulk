@@ -1,6 +1,7 @@
 package python
 
 import (
+	"bufio"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -64,6 +65,14 @@ func NewWorker(
 		"python worker started",
 		"script", scriptPath,
 	)
+
+	go func() {
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			line := scanner.Text()
+			workerLogger.Warn("python worker stderr", "output", line)
+		}
+	}()
 
 	return &PythonWorker{
 		cmd:      cmd,

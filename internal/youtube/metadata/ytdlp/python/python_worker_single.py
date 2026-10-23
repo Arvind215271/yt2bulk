@@ -48,7 +48,7 @@ YDL_OPTS = {
     "quiet": True,
     "no_warnings": True,
     "ignoreconfig": True,
-    "cachedir": True,
+    "cachedir": None,
     "check_formats": False,
     "ignore_no_formats_error": True,
     "socket_timeout": 10,
@@ -226,6 +226,11 @@ def main():
         outtmpl = dict(old_outtmpl)
         outtmpl["subtitle"] = output_path
 
+        old_writesubtitles = ydl.params.get("writesubtitles")
+        old_writeautomaticsub = ydl.params.get("writeautomaticsub")
+        old_subtitleslangs = ydl.params.get("subtitleslangs")
+        old_subtitlesformat = ydl.params.get("subtitlesformat")
+
         try:
           ydl.params["writesubtitles"] = subtitle_type == "manual"
           ydl.params["writeautomaticsub"] = subtitle_type == "automatic"
@@ -237,6 +242,25 @@ def main():
 
         finally:
           ydl.params["outtmpl"] = old_outtmpl
+          if old_writesubtitles is None:
+            ydl.params.pop("writesubtitles", None)
+          else:
+            ydl.params["writesubtitles"] = old_writesubtitles
+
+          if old_writeautomaticsub is None:
+            ydl.params.pop("writeautomaticsub", None)
+          else:
+            ydl.params["writeautomaticsub"] = old_writeautomaticsub
+
+          if old_subtitleslangs is None:
+            ydl.params.pop("subtitleslangs", None)
+          else:
+            ydl.params["subtitleslangs"] = old_subtitleslangs
+
+          if old_subtitlesformat is None:
+            ydl.params.pop("subtitlesformat", None)
+          else:
+            ydl.params["subtitlesformat"] = old_subtitlesformat
 
         send({"ok": True})
         continue
@@ -245,6 +269,21 @@ def main():
           ydl,
           YT_URL + req["video_id"],
           download=False,
+      )
+
+      print(
+          {
+              "video_id": req["video_id"],
+              "duration": info.get("duration"),
+              "manual_subtitle_languages": list(
+                  (info.get("subtitles") or {}).keys()
+              ),
+              "automatic_subtitle_languages": list(
+                  (info.get("automatic_captions") or {}).keys()
+              ),
+          },
+          file=sys.stderr,
+          flush=True,
       )
 
       send({
