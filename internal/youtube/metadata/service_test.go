@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Arvind215271/yt2bulk/internal/cache"
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 	"github.com/Arvind215271/yt2bulk/internal/youtube"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/metadata"
 	"github.com/Arvind215271/yt2bulk/internal/youtube/stats"
@@ -50,7 +51,7 @@ func TestMetadataService_GetVideoWithStats_Success(t *testing.T) {
 		},
 	}
 
-	svc := metadata.NewService(nil, ytdlp)
+	svc := metadata.NewService(nil, ytdlp, logger.New("test"))
 	video, st, err := svc.GetVideoWithStats(context.Background(), "vid1", metadata.ProviderYTDLP)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -85,7 +86,7 @@ func TestMetadataService_GetVideoWithStats_Fallback(t *testing.T) {
 		},
 	}
 
-	svc := metadata.NewService(api, ytdlp)
+	svc := metadata.NewService(api, ytdlp, logger.New("test"))
 	video, st, err := svc.GetVideoWithStats(context.Background(), "vid1", metadata.ProviderYTDLP)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -108,7 +109,7 @@ func TestMetadataService_GetVideoWithStats_Failure(t *testing.T) {
 		},
 	}
 
-	svc := metadata.NewService(nil, ytdlp)
+	svc := metadata.NewService(nil, ytdlp, logger.New("test"))
 	_, st, err := svc.GetVideoWithStats(context.Background(), "vid1", metadata.ProviderYTDLP)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -128,7 +129,7 @@ func TestMetadataService_GetPlaylistMetadataWithStats_Success(t *testing.T) {
 		},
 	}
 
-	svc := metadata.NewService(nil, ytdlp)
+	svc := metadata.NewService(nil, ytdlp, logger.New("test"))
 	playlist, st, err := svc.GetPlaylistMetadataWithStats(context.Background(), "pl1", metadata.ProviderYTDLP)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -159,7 +160,7 @@ func TestMetadataService_GetPlaylistMetadataWithStats_Fallback(t *testing.T) {
 		},
 	}
 
-	svc := metadata.NewService(api, ytdlp)
+	svc := metadata.NewService(api, ytdlp, logger.New("test"))
 	playlist, st, err := svc.GetPlaylistMetadataWithStats(context.Background(), "pl1", metadata.ProviderYTDLP)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -202,7 +203,7 @@ func TestMetadataService_GetPlaylistMetadata_Cache(t *testing.T) {
 		},
 	}
 
-	svc := metadata.NewService(nil, ytdlp)
+	svc := metadata.NewService(nil, ytdlp, logger.New("test"))
 
 	// First call: Miss
 	_, st1, err := svc.GetPlaylistMetadataWithStats(context.Background(), playlistID, metadata.ProviderYTDLP)
@@ -244,7 +245,7 @@ func TestMetadataService_GetPlaylistMetadataWithStats_ItemCount(t *testing.T) {
 		},
 	}
 
-	svc := metadata.NewService(nil, ytdlp)
+	svc := metadata.NewService(nil, ytdlp, logger.New("test"))
 	playlist, _, err := svc.GetPlaylistMetadataWithStats(context.Background(), "pl1", metadata.ProviderYTDLP)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
