@@ -8,15 +8,16 @@ import (
 )
 
 type CommonExportFields struct {
-	Subtitle    *subtitle.DownloadRequest                 `json:"subtitle,omitempty"`
+	Subtitle    *subtitle.DownloadRequest               `json:"subtitle,omitempty"`
 	Preferences []subtitleapi.SubtitlePreferenceRequest `json:"preferences,omitempty"`
-	Transcript  *transcript.ProcessingRequest             `json:"transcript,omitempty"`
-	Signal      *signal.SignalRequest                     `json:"signal,omitempty"`
-	Format      string                                    `json:"format"`
-	Fields      []string                                  `json:"fields,omitempty"`
+	Transcript  *transcript.ProcessingRequest           `json:"transcript,omitempty"`
+	Signal      *signal.SignalRequest                   `json:"signal,omitempty"`
+	Format      string                                  `json:"format"`
+	Fields      []string                                `json:"fields,omitempty"`
 }
 
 type ExportRequest struct {
-	Inputs []string `json:"inputs"`
+	Inputs       []string `json:"inputs"`
+	PlayerClient string   `json:"player_client,omitempty"`
 	CommonExportFields
 }

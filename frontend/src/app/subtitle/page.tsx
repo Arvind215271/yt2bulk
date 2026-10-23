@@ -35,6 +35,7 @@ export default function SubtitlePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrefs, setSelectedPrefs] = useState<SubtitlePreference[]>([]);
   const [format, setFormat] = useState('vtt');
+  const [playerClient, setPlayerClient] = useState('default');
   const [downloading, setDownloading] = useState(false);
 
   // Drag and drop state
@@ -72,7 +73,7 @@ export default function SubtitlePage() {
       const res = await fetch(`${apiUrl}/subtitle/options`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inputs: list }),
+        body: JSON.stringify({ inputs: list, player_client: playerClient }),
         signal: controller.signal
       });
 

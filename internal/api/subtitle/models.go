@@ -10,7 +10,8 @@ type SubtitlePreferenceRequest struct {
 }
 
 type SubtitleDownloadRequest struct {
-	Inputs      []string                    `json:"inputs" validate:"required,min=1"`
-	Preferences []SubtitlePreferenceRequest `json:"preferences"`
-	Format      string                      `json:"format,omitempty" validate:"omitempty,oneof=json3 vtt srt srv1 srv2 srv3 ttml"`
+	Inputs       []string                    `json:"inputs" validate:"required,min=1"`
+	PlayerClient string                      `json:"player_client,omitempty"`
+	Preferences  []SubtitlePreferenceRequest `json:"preferences"`
+	Format       string                      `json:"format,omitempty" validate:"omitempty,oneof=json3 vtt srt srv1 srv2 srv3 ttml"`
 }
