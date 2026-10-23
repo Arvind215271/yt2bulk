@@ -86,6 +86,7 @@ export default function ExportPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      console.log('Sending subtitle options request from export page to:', `${apiUrl}/subtitle/options`, { inputs: list });
       const res = await fetch(`${apiUrl}/subtitle/options`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,10 +96,12 @@ export default function ExportPage() {
 
       const text = await res.text();
       if (!res.ok) {
+        console.error('Failed to fetch subtitle options from export page, status:', res.status, text);
         throw new Error(text || 'Failed to fetch subtitle options');
       }
 
       const parsed = JSON.parse(text);
+      console.log('Successfully fetched subtitle options from export page:', parsed);
       setRawSubtitleOptions(parsed);
     } catch (err: any) {
       if (err.name !== 'AbortError' && !err.message?.includes('aborted')) {

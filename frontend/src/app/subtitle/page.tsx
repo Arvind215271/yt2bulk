@@ -68,6 +68,7 @@ export default function SubtitlePage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      console.log('Sending subtitle options request to:', `${apiUrl}/subtitle/options`, { inputs: list });
       const res = await fetch(`${apiUrl}/subtitle/options`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,10 +78,12 @@ export default function SubtitlePage() {
 
       const text = await res.text();
       if (!res.ok) {
+        console.error('Failed to fetch subtitle options, status:', res.status, text);
         throw new Error(text || 'Failed to fetch subtitle options');
       }
 
       const parsed = JSON.parse(text);
+      console.log('Successfully fetched subtitle options:', parsed);
       setRawResponseData(parsed);
     } catch (err: any) {
       if (err.name !== 'AbortError' && !err.message?.includes('aborted')) {
@@ -302,6 +305,7 @@ export default function SubtitlePage() {
         }))
       };
 
+      console.log('Sending subtitle download request to:', `${apiUrl}/subtitle/download`, payload);
       const res = await fetch(`${apiUrl}/subtitle/download`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -311,10 +315,12 @@ export default function SubtitlePage() {
 
       if (!res.ok) {
         const errText = await res.text();
+        console.error('Failed to download subtitles, status:', res.status, errText);
         throw new Error(errText || 'Download failed');
       }
 
       const blob = await res.blob();
+      console.log('Successfully downloaded subtitles zip, blob size:', blob.size);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

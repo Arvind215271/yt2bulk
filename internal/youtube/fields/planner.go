@@ -1,20 +1,20 @@
 package fields
 
-
+import "github.com/Arvind215271/yt2bulk/internal/logger"
 
 // NewPlanner creates a new Planner instance, validating the fields.
-func NewPlanner(fields []string) (*Planner, error) {
+func NewPlanner(fields []string, logger *logger.Logger) (*Planner, error) {
 
 	if len(fields) == 0 {
-        fields = DefaultFields()
-    }
-
-	
-	
-	if err := ValidateFields(fields); err != nil {
-		return nil, err
+		fields = DefaultFields()
 	}
 
+	if err := ValidateFields(fields); err != nil {
+		if logger != nil {
+			logger.Error("failed to validate fields", "error", err)
+		}
+		return nil, err
+	}
 
 	fieldSet := make(map[string]bool, len(fields))
 	for _, f := range fields {
@@ -23,9 +23,14 @@ func NewPlanner(fields []string) (*Planner, error) {
 	// Always include errors
 	fieldSet[FieldErrors] = true
 
+	if logger != nil {
+		logger.Debug("created fields planner", "count", len(fields))
+	}
+
 	return &Planner{
 		fields:   fields,
 		fieldSet: fieldSet,
+		logger:   logger,
 	}, nil
 }
 

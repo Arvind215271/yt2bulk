@@ -157,21 +157,22 @@ func main() {
 	youtubeService := metadata.NewService(
 		youtubeProvider,
 		ytdlpMetadataProvider,
+		logger,
 	)
 
 	subtitleService := ytSubtitle.NewSubtitleService(cacheManager, logger, pythonPool)
 	preflightService := preflight.NewService(youtubeService, cacheManager, logger, config.MaxExportLimit)
-	transcriptService := ytTranscript.NewService()
+	transcriptService := ytTranscript.NewService(logger)
 	signalService := ytSignal.NewSignalService()
 
 	// description
-	descriptionService := description.NewService()
+	descriptionService := description.NewService(logger)
 
 	// pipeline
 	pipelineService := pipeline.NewService(youtubeService, descriptionService, subtitleService, transcriptService, signalService, logger, 2*config.PythonWorkers)
 
 	// export service
-	exportService := exportservice.NewService()
+	exportService := exportservice.NewService(logger)
 
 	exportService.RegisterExporter(
 		exportservice.FormatJSON,
@@ -202,19 +203,19 @@ func main() {
 	resourceService := resource.NewService(youtubeService, pipelineService, logger, 2*config.PythonWorkers)
 
 	// handlers & routes
-	exportHandler := export.NewHandler(resourceService, exportService, preflightService, config)
+	exportHandler := export.NewHandler(resourceService, exportService, preflightService, config, logger)
 	export.RegisterRoutes(e.Group("/export"), exportHandler)
 
-	subtitleHandler := apiSubtitle.NewHandler(resourceService, subtitleService, exportService, preflightService)
+	subtitleHandler := apiSubtitle.NewHandler(resourceService, subtitleService, exportService, preflightService, logger)
 	apiSubtitle.RegisterSubtitleRoutes(e.Group("/subtitle"), subtitleHandler)
 
-	transcriptHandler := apiTranscript.NewHandler(resourceService, preflightService)
+	transcriptHandler := apiTranscript.NewHandler(resourceService, preflightService, logger)
 	e.POST("/transcript", transcriptHandler.GetTranscript)
 
-	playlistHandler := apiPlaylist.NewHandler(youtubeService, preflightService)
+	playlistHandler := apiPlaylist.NewHandler(youtubeService, preflightService, logger)
 	apiPlaylist.RegisterPlaylistRoutes(e.Group("/playlist"), playlistHandler)
 
-	preflightHandler := apiPreflight.NewHandler(preflightService)
+	preflightHandler := apiPreflight.NewHandler(preflightService, logger)
 	apiPreflight.RegisterRoutes(e.Group("/preflight"), preflightHandler)
 
 	// only run debug in development

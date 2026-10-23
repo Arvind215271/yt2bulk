@@ -104,7 +104,7 @@ func TestAccountingE2E_MultiResourceComplexTree(t *testing.T) {
 	descSvc := description.NewService()
 	subFetcher := &e2eMockSubFetcher{}
 	subSvc := subtitle.NewSubtitleService(cacheMgr, log, subFetcher)
-	transSvc := transcript.NewService()
+	transSvc := transcript.NewService(log)
 	sigSvc := signal.NewSignalService()
 
 	pipelineSvc := pipeline.NewService(metaSvc, descSvc, subSvc, transSvc, sigSvc, log, 4)
@@ -208,7 +208,7 @@ func TestAccountingE2E_FallbacksAndPartialFailures(t *testing.T) {
 	descSvc := description.NewService()
 	subFetcher := &e2eMockSubFetcher{}
 	subSvc := subtitle.NewSubtitleService(cacheMgr, log, subFetcher)
-	transSvc := transcript.NewService()
+	transSvc := transcript.NewService(log)
 	sigSvc := signal.NewSignalService()
 
 	pipelineSvc := pipeline.NewService(metaSvc, descSvc, subSvc, transSvc, sigSvc, log, 2)

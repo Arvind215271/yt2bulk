@@ -2,14 +2,21 @@ package description
 
 import (
 	"context"
+
+	"github.com/Arvind215271/yt2bulk/internal/logger"
 )
 
-type Service struct{}
+type Service struct {
+	logger *logger.Logger
+}
 
-func NewService() *Service {
-	return &Service{}
+func NewService(logger *logger.Logger) *Service {
+	return &Service{
+		logger: logger,
+	}
 }
 
 func (s *Service) GetDescription(ctx context.Context, description string) (Metadata, error) {
-    return ProcessDescription(description), nil
+	s.logger.With("description_len", len(description)).Info("Processing description")
+	return ProcessDescription(description), nil
 }
