@@ -64,3 +64,5 @@ tmp
 tmp/
 
 cookies.txt
+*.b64
+*.hex

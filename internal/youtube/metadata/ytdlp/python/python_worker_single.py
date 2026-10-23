@@ -1,15 +1,33 @@
 #!/usr/bin/env python3
 
+import base64
 import ctypes
 import gc
 import os
 import random
 import struct
 import sys
+import tempfile
 import time
 import traceback
 
 import orjson
+
+def load_env_file():
+    if os.path.exists(".env"):
+        try:
+            with open(".env", "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        os.environ[key.strip()] = value.strip()
+        except Exception:
+            pass
+
+load_env_file()
 from yt_dlp.utils import DownloadError
 import yt_dlp
 
@@ -43,12 +61,72 @@ unpack = PACK.unpack
 YT_URL = "https://www.youtube.com/watch?v="
 WARMUP_URL = YT_URL + "dQw4w9WgXcQ"
 
+def get_cookiefile():
+  # Check for Hex encoded cookies first (no '=' padding or special characters issues)
+  cookie_hex = os.getenv("YTDLP_COOKIE_FILE_HEX") or os.getenv("YOUTUBE_COOKIES_HEX")
+  if cookie_hex:
+    try:
+      import binascii
+      cookie_data = binascii.unhexlify(cookie_hex.strip())
+      fd, temp_path = tempfile.mkstemp(prefix="ytdlp_cookies_hex_", suffix=".txt")
+      os.write(fd, cookie_data)
+      os.close(fd)
+      sys.stderr.write(f"DEBUG: Created temp cookie file from hex at {temp_path}\n")
+      sys.stderr.flush()
+      return temp_path
+    except Exception as e:
+      sys.stderr.write(f"DEBUG: Failed to decode/write hex cookie file: {e}\n")
+      sys.stderr.flush()
+
+  # Check for Base64 encoded cookies
+  cookie_b64 = os.getenv("YTDLP_COOKIE_FILE_B64") or os.getenv("YOUTUBE_COOKIES_B64")
+  if cookie_b64:
+    try:
+      cookie_data = base64.b64decode(cookie_b64)
+      fd, temp_path = tempfile.mkstemp(prefix="ytdlp_cookies_b64_", suffix=".txt")
+      os.write(fd, cookie_data)
+      os.close(fd)
+      sys.stderr.write(f"DEBUG: Created temp cookie file from base64 at {temp_path}\n")
+      sys.stderr.flush()
+      return temp_path
+    except Exception as e:
+      sys.stderr.write(f"DEBUG: Failed to decode/write base64 cookie file: {e}\n")
+      sys.stderr.flush()
+
+  cookie_env = os.getenv("YTDLP_COOKIE_FILE") or os.getenv("YOUTUBE_COOKIES")
+  if cookie_env:
+    if os.path.exists(cookie_env):
+      sys.stderr.write(f"DEBUG: Found cookie file at {cookie_env}\n")
+      sys.stderr.flush()
+      return cookie_env
+    else:
+      try:
+        fd, temp_path = tempfile.mkstemp(prefix="ytdlp_cookies_", suffix=".txt")
+        os.write(fd, cookie_env.encode("utf-8"))
+        os.close(fd)
+        sys.stderr.write(f"DEBUG: Created temp cookie file at {temp_path}\n")
+        sys.stderr.flush()
+        return temp_path
+      except Exception as e:
+        sys.stderr.write(f"DEBUG: Failed to create temp cookie file: {e}\n")
+        sys.stderr.flush()
+        pass
+
+  if os.path.exists("cookies.txt"):
+    sys.stderr.write("DEBUG: Found cookies.txt\n")
+    sys.stderr.flush()
+    return "cookies.txt"
+
+  sys.stderr.write("DEBUG: No cookie file found\n")
+  sys.stderr.flush()
+  return None
+
 YDL_OPTS = {
     "skip_download": True,
-    "quiet": False,
-    "no_warnings": False,
+    "quiet": True,
+    "no_warnings": True,
     "ignoreconfig": True,
-    "cachedir": None,
+    "cachedir": True,
     "check_formats": False,
     "ignore_no_formats_error": True,
     "socket_timeout": 10,
@@ -56,12 +134,12 @@ YDL_OPTS = {
     "retries": 0,
     "lazy_playlist": True,
     "noprogress": True,
-    "cookiefile": os.getenv("YTDLP_COOKIE_FILE") or None,
-    # "extractor_args": {
-    #     "youtube": {
-    #         "player_client": ["android"],
-    #     }
-    # },
+    "cookiefile": get_cookiefile(),
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["android"],
+        }
+    },
 }
 
 

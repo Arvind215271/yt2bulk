@@ -19,6 +19,8 @@ WORKDIR /app
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates ffmpeg nodejs npm \
+    && node --version \
+    && npm --version \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .

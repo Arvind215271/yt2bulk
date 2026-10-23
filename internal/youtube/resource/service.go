@@ -157,6 +157,8 @@ func (s *Service) ProcessResourcesWithStats(
 				if video == nil {
 					if ctx.Err() != nil && s.logger != nil {
 						s.logger.Debug("video resource operation completed during cancellation", "id", inp.ID, "error", ctx.Err())
+					} else if s.logger != nil {
+						s.logger.Error("video resource operation failed unexpectedly", "id", inp.ID)
 					}
 					return
 				}

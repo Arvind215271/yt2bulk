@@ -24,13 +24,7 @@ func (m *mockFetcher) GetSubtitle(ctx context.Context, videoID, language, subTyp
 func TestSubtitleService_DownloadSubtitleWithStats_CacheHit(t *testing.T) {
 	tmpDir := t.TempDir()
 	log := logger.New("test")
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
-
-	// Pre-populate cache
-	cacheKey := "subtitle.en.json3"
-	if err := cacheMgr.Save("vid1", cacheKey, []byte("cached subtitle data")); err != nil {
-		t.Fatalf("failed to seed cache: %v", err)
-	}
+	c := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
 
 	meta := subtitle.SubtitleMetadata{
 		Manual: []subtitle.SubtitleTrack{
@@ -38,7 +32,7 @@ func TestSubtitleService_DownloadSubtitleWithStats_CacheHit(t *testing.T) {
 		},
 	}
 
-	svc := subtitle.NewSubtitleService(cacheMgr, log, &mockFetcher{})
+	svc := subtitle.NewSubtitleService(c, log, &mockFetcher{})
 
 	req := subtitle.DownloadRequest{
 		VideoID:  "vid1",
@@ -62,7 +56,7 @@ func TestSubtitleService_DownloadSubtitleWithStats_CacheHit(t *testing.T) {
 func TestSubtitleService_DownloadSubtitleWithStats_CacheMiss(t *testing.T) {
 	tmpDir := t.TempDir()
 	log := logger.New("test")
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
+	c := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
 
 	fetcher := &mockFetcher{
 		getSubtitleFunc: func(ctx context.Context, videoID, language, subType, format string) ([]byte, error) {
@@ -76,7 +70,7 @@ func TestSubtitleService_DownloadSubtitleWithStats_CacheMiss(t *testing.T) {
 		},
 	}
 
-	svc := subtitle.NewSubtitleService(cacheMgr, log, fetcher)
+	svc := subtitle.NewSubtitleService(c, log, fetcher)
 
 	req := subtitle.DownloadRequest{
 		VideoID:  "vid2",
@@ -100,9 +94,9 @@ func TestSubtitleService_DownloadSubtitleWithStats_CacheMiss(t *testing.T) {
 func TestSubtitleService_DownloadSubtitleWithStats_ValidationFailure(t *testing.T) {
 	tmpDir := t.TempDir()
 	log := logger.New("test")
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
+	c := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
 
-	svc := subtitle.NewSubtitleService(cacheMgr, log, &mockFetcher{})
+	svc := subtitle.NewSubtitleService(c, log, &mockFetcher{})
 
 	req := subtitle.DownloadRequest{
 		VideoID:  "", // invalid
@@ -122,9 +116,9 @@ func TestSubtitleService_DownloadSubtitleWithStats_ValidationFailure(t *testing.
 func TestSubtitleService_DownloadSubtitleWithStats_TrackValidationFailure(t *testing.T) {
 	tmpDir := t.TempDir()
 	log := logger.New("test")
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
+	c := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
 
-	svc := subtitle.NewSubtitleService(cacheMgr, log, &mockFetcher{})
+	svc := subtitle.NewSubtitleService(c, log, &mockFetcher{})
 
 	req := subtitle.DownloadRequest{
 		VideoID:  "vid3",
@@ -145,7 +139,7 @@ func TestSubtitleService_DownloadSubtitleWithStats_TrackValidationFailure(t *tes
 func TestSubtitleService_DownloadSubtitleWithStats_DownloadFailure(t *testing.T) {
 	tmpDir := t.TempDir()
 	log := logger.New("test")
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
+	c := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
 
 	fetcher := &mockFetcher{
 		getSubtitleFunc: func(ctx context.Context, videoID, language, subType, format string) ([]byte, error) {
@@ -159,7 +153,7 @@ func TestSubtitleService_DownloadSubtitleWithStats_DownloadFailure(t *testing.T)
 		},
 	}
 
-	svc := subtitle.NewSubtitleService(cacheMgr, log, fetcher)
+	svc := subtitle.NewSubtitleService(c, log, fetcher)
 
 	req := subtitle.DownloadRequest{
 		VideoID:  "vid4",

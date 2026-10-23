@@ -66,8 +66,8 @@ func setupResourceService(t *testing.T, metaProvider metadata.Provider, subFetch
 	log := logger.New("test")
 	metaSvc := metadata.NewService(nil, metaProvider)
 	descSvc := description.NewService()
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
-	subSvc := subtitle.NewSubtitleService(cacheMgr, log, subFetcher)
+	_ = cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
+	subSvc := subtitle.NewSubtitleService(log, subFetcher)
 	transSvc := transcript.NewService(log)
 	sigSvc := signal.NewSignalService()
 
@@ -97,7 +97,7 @@ func TestProcessVideoWithStats(t *testing.T) {
 	}
 
 	metaSvc := metadata.NewService(nil, metaProv)
-	pipelineSvc := pipeline.NewService(metaSvc, description.NewService(), subtitle.NewSubtitleService(cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, logger.New("test")), logger.New("test"), &mockSubFetcher{}), transcript.NewService(logger.New("test")), signal.NewSignalService(), logger.New("test"), 1)
+	pipelineSvc := pipeline.NewService(metaSvc, description.NewService(logger.New("test")), subtitle.NewSubtitleService(logger.New("test"), &mockSubFetcher{}), transcript.NewService(logger.New("test")), signal.NewSignalService(), logger.New("test"), 1)
 
 	video, resStats := resource.ProcessVideoWithStats(context.Background(), pipelineSvc, "vid1", req)
 	if video.Title != "Video vid1" {
