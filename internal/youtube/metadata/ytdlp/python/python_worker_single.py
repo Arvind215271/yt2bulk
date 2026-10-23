@@ -45,8 +45,8 @@ WARMUP_URL = YT_URL + "dQw4w9WgXcQ"
 
 YDL_OPTS = {
     "skip_download": True,
-    "quiet": True,
-    "no_warnings": True,
+    "quiet": False,
+    "no_warnings": False,
     "ignoreconfig": True,
     "cachedir": None,
     "check_formats": False,
@@ -56,12 +56,12 @@ YDL_OPTS = {
     "retries": 0,
     "lazy_playlist": True,
     "noprogress": True,
-    # "cookiefile": "/home/arvind-saini/Projects/yt2bulk/cookies.txt",
-    "extractor_args": {
-        "youtube": {
-            "player_client": ["android"],
-        }
-    },
+    "cookiefile": os.getenv("YTDLP_COOKIE_FILE") or None,
+    # "extractor_args": {
+    #     "youtube": {
+    #         "player_client": ["android"],
+    #     }
+    # },
 }
 
 
@@ -143,6 +143,8 @@ def download_with_retry(
 
 
 def main():
+  print(f"yt-dlp version: {yt_dlp.version.__version__}", file=sys.stderr, flush=True)
+  
   ydl = yt_dlp.YoutubeDL(YDL_OPTS)
 
   # Let Python manage standard GC thresholds naturally;
