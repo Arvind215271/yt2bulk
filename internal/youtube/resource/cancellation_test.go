@@ -139,8 +139,8 @@ func TestCancellation_BetweenPipelineStages(t *testing.T) {
 	log := logger.New("test")
 	metaSvc := metadata.NewService(nil, metaProv)
 	descSvc := description.NewService()
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
-	subSvc := subtitle.NewSubtitleService(cacheMgr, log, subFetcher)
+	c := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
+	subSvc := subtitle.NewSubtitleService(c, log, subFetcher)
 	transSvc := transcript.NewService(log)
 	sigSvc := signal.NewSignalService()
 
@@ -219,8 +219,8 @@ func TestCancellation_DuringSubtitleExecution(t *testing.T) {
 	log := logger.New("test")
 	metaSvc := metadata.NewService(nil, metaProv)
 	descSvc := description.NewService()
-	cacheMgr := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
-	subSvc := subtitle.NewSubtitleService(cacheMgr, log, subFetcher)
+	c := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
+	subSvc := subtitle.NewSubtitleService(c, log, subFetcher)
 	transSvc := transcript.NewService(log)
 	sigSvc := signal.NewSignalService()
 

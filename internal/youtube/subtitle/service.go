@@ -121,43 +121,6 @@ func (s *SubtitleService) DownloadSubtitleWithStats(
 		"format", req.Format,
 	)
 
-	cacheKey := subtitleCacheKey(req)
-
-	s.logger.Debug(
-		"checking subtitle cache",
-		"videoID", req.VideoID,
-		"cacheKey", cacheKey,
-	)
-
-	if cached, err := s.cache.Get(req.VideoID, cacheKey); err == nil {
-		st.CacheHits++
-		st.Successes++
-
-		s.logger.Debug(
-			"subtitle cache hit",
-			"videoID", req.VideoID,
-			"language", req.Language,
-			"type", req.Type,
-			"format", req.Format,
-			"cacheKey", cacheKey,
-		)
-
-		return &SubtitleResult{
-			Content:  cached,
-			Format:   req.Format,
-			Language: req.Language,
-		}, st, nil
-
-	} else {
-		st.CacheMisses++
-		s.logger.Debug(
-			"subtitle cache miss",
-			"videoID", req.VideoID,
-			"cacheKey", cacheKey,
-			"error", err,
-		)
-	}
-
 	st.UpstreamFetches++
 	s.logger.Debug(
 		"downloading subtitle",
@@ -196,24 +159,6 @@ func (s *SubtitleService) DownloadSubtitleWithStats(
 		"format", req.Format,
 		"bytes", len(data),
 	)
-
-	if err := s.cache.Save(req.VideoID, cacheKey, data); err != nil {
-
-		s.logger.Warn(
-			"failed to cache subtitle",
-			"videoID", req.VideoID,
-			"cacheKey", cacheKey,
-			"error", err,
-		)
-
-	} else {
-
-		s.logger.Debug(
-			"subtitle cached",
-			"videoID", req.VideoID,
-			"cacheKey", cacheKey,
-		)
-	}
 
 	st.Successes++
 	s.logger.Debug(
