@@ -20,6 +20,7 @@ interface PlaylistResponse {
 export default function PlaylistPage() {
   const [url, setUrl] = useState('');
   const [provider, setProvider] = useState('ytdlp');
+  const [playerClient, setPlayerClient] = useState('default');
   const [output, setOutput] = useState('both');
   
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,7 @@ export default function PlaylistPage() {
       const res = await fetch(`${apiUrl}/playlist/videos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url.trim(), provider, output }),
+        body: JSON.stringify({ url: url.trim(), provider, player_client: playerClient, output }),
         signal: controller.signal
       });
 
@@ -142,6 +143,30 @@ export default function PlaylistPage() {
                 >
                   <option value="ytdlp">yt-dlp (Recommended)</option>
                   <option value="api">YouTube API v3</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem', color: theme.colors.textMuted }}>
+                  Player Client
+                </label>
+                <select
+                  value={playerClient}
+                  onChange={(e) => setPlayerClient(e.target.value)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: theme.colors.bg,
+                    border: `1px solid ${theme.colors.borderColor}`,
+                    borderRadius: '6px',
+                    padding: '0.6rem 1rem',
+                    fontSize: '0.95rem',
+                    color: theme.colors.textMain
+                  }}
+                >
+                  <option value="default">Default</option>
+                  <option value="android">Android</option>
+                  <option value="android_vr">Android VR</option>
+                  <option value="visionos">VisionOS</option>
                 </select>
               </div>
 

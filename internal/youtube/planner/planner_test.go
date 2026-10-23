@@ -11,7 +11,7 @@ func TestPlanner_PlaylistTitle(t *testing.T) {
 	resources := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypePlaylist, ID: "PL123"},
 	}
-	fp, err := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, err := fields.NewPlanner([]string{fields.FieldTitle}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -39,7 +39,7 @@ func TestPlanner_PlaylistDuration(t *testing.T) {
 	resources := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypePlaylist, ID: "PL123"},
 	}
-	fp, err := fields.NewPlanner([]string{fields.FieldDuration})
+	fp, err := fields.NewPlanner([]string{fields.FieldDuration}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestPlanner_PlaylistLikeCount(t *testing.T) {
 	resources := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypePlaylist, ID: "PL123"},
 	}
-	fp, err := fields.NewPlanner([]string{fields.FieldLikeCount})
+	fp, err := fields.NewPlanner([]string{fields.FieldLikeCount}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -80,7 +80,7 @@ func TestPlanner_PlaylistTranscript(t *testing.T) {
 	resources := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypePlaylist, ID: "PL123"},
 	}
-	fp, err := fields.NewPlanner([]string{fields.FieldTranscriptText})
+	fp, err := fields.NewPlanner([]string{fields.FieldTranscriptText}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

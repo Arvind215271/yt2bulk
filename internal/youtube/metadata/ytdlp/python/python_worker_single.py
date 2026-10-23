@@ -234,6 +234,14 @@ def main():
   while True:
     try:
       req = recv()
+      
+      # Handle dynamic player_client
+      player_client = req.get("player_client")
+      if player_client:
+        ydl.params["extractor_args"]["youtube"]["player_client"] = [player_client]
+      else:
+        # Default
+        ydl.params["extractor_args"]["youtube"]["player_client"] = ["android"]
     except EOFError:
       break
     except Exception:

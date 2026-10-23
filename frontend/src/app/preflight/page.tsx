@@ -10,6 +10,7 @@ import { useError } from '@/components/ErrorContext';
 export default function PreflightPage() {
   const { addError } = useError();
   const [inputs, setInputs] = useState('');
+  const [playerClient, setPlayerClient] = useState('default');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<PreflightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +34,7 @@ export default function PreflightPage() {
     abortControllerRef.current = controller;
 
     try {
-      const result = await checkPreflight(list, controller.signal);
+      const result = await checkPreflight(list, playerClient, controller.signal);
       setData(result);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
@@ -84,6 +85,31 @@ export default function PreflightPage() {
               resize: 'vertical'
             }}
           />
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: theme.colors.textMuted }}>
+              Player Client:
+            </label>
+            <select
+              value={playerClient}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPlayerClient(e.target.value)}
+              style={{
+                backgroundColor: theme.colors.bg,
+                border: `1px solid ${theme.colors.borderColor}`,
+                borderRadius: '6px',
+                padding: '0.5rem',
+                fontSize: '0.9rem',
+                color: theme.colors.textMain,
+                width: '100%'
+              }}
+            >
+              <option value="default">Default</option>
+              <option value="android">Android</option>
+              <option value="android_vr">Android VR</option>
+              <option value="visionos">VisionOS</option>
+              <option value="tv_samsung">TV Samsung</option>
+              <option value="all">All</option>
+            </select>
+          </div>
           <button
             type="submit"
             disabled={loading}

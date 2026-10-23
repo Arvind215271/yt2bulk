@@ -3,8 +3,9 @@ package python
 import "context"
 
 type VideoRequest struct {
-	Ctx     context.Context `json:"-"`
-	VideoID string          `json:"video_id"`
+	Ctx          context.Context `json:"-"`
+	VideoID      string          `json:"video_id"`
+	PlayerClient string          `json:"player_client,omitempty"`
 }
 
 type WarmupRequest struct {
@@ -13,21 +14,24 @@ type WarmupRequest struct {
 }
 
 type PlaylistRequest struct {
-	Ctx        context.Context `json:"-"`
-	Cmd        string          `json:"cmd"`
-	PlaylistID string          `json:"playlist_id"`
+	Ctx          context.Context `json:"-"`
+	Cmd          string          `json:"cmd"`
+	PlaylistID   string          `json:"playlist_id"`
+	PlayerClient string          `json:"player_client,omitempty"`
 }
 
 type PlaylistMetadataRequest struct {
-	Ctx        context.Context `json:"-"`
-	Cmd        string          `json:"cmd"`
-	PlaylistID string          `json:"playlist_id"`
+	Ctx          context.Context `json:"-"`
+	Cmd          string          `json:"cmd"`
+	PlaylistID   string          `json:"playlist_id"`
+	PlayerClient string          `json:"player_client,omitempty"`
 }
 
 type PlaylistSurfaceMetadataRequest struct {
-	Ctx        context.Context `json:"-"`
-	Cmd        string          `json:"cmd"`
-	PlaylistID string          `json:"playlist_id"`
+	Ctx          context.Context `json:"-"`
+	Cmd          string          `json:"cmd"`
+	PlaylistID   string          `json:"playlist_id"`
+	PlayerClient string          `json:"player_client,omitempty"`
 }
 
 type WorkerResponse struct {
@@ -37,13 +41,14 @@ type WorkerResponse struct {
 }
 
 type SubtitleRequest struct {
-	Ctx        context.Context `json:"-"`
-	Cmd        string          `json:"cmd"`
-	VideoID    string          `json:"video_id"`
-	Language   string          `json:"language"`
-	Type       string          `json:"type"`   // manual | automatic
-	Format     string          `json:"format"` // json3, vtt...
-	OutputPath string          `json:"output_path"`
+	Ctx          context.Context `json:"-"`
+	Cmd          string          `json:"cmd"`
+	VideoID      string          `json:"video_id"`
+	Language     string          `json:"language"`
+	Type         string          `json:"type"`   // manual | automatic
+	Format       string          `json:"format"` // json3, vtt...
+	OutputPath   string          `json:"output_path"`
+	PlayerClient string          `json:"player_client,omitempty"`
 }
 
 type SubtitleResponse struct {

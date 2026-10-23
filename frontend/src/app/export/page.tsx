@@ -13,6 +13,7 @@ export default function ExportPage() {
   const { addError } = useError();
   const [inputs, setInputs] = useState('');
   const [format, setFormat] = useState('json');
+  const [playerClient, setPlayerClient] = useState('default');
   const [selectedFields, setSelectedFields] = useState<string[]>([
     'id', 'title', 'channel_title', 'duration', 'transcript_text', 'transcript_signal'
   ]);
@@ -58,7 +59,7 @@ export default function ExportPage() {
     abortControllerRef.current = controller;
 
     try {
-      const data = await checkPreflight(list, controller.signal);
+      const data = await checkPreflight(list, playerClient, controller.signal);
       setPreflightData(data);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
@@ -223,6 +224,7 @@ export default function ExportPage() {
     const payload = {
       inputs: list,
       format: format,
+      player_client: playerClient,
       fields: selectedFields,
       transcript: includeTranscript ? { output: 'plain-text' } : null,
       signal: includeSignal ? {} : null,
@@ -387,6 +389,38 @@ export default function ExportPage() {
                 <option value="yaml">YAML (.yaml)</option>
                 <option value="xml">XML (.xml)</option>
                 <option value="excel">Excel (.xlsx)</option>
+              </select>
+            </div>
+            <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: theme.colors.textMuted }}>
+                Player Client:
+              </label>
+              <select
+                value={playerClient}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPlayerClient(e.target.value)}
+                style={{
+                  backgroundColor: theme.colors.bg,
+                  border: `1px solid ${theme.colors.borderColor}`,
+                  borderRadius: '6px',
+                  padding: '0.5rem',
+                  fontSize: '0.9rem',
+                  color: theme.colors.textMain,
+                  width: '100%'
+                }}
+              >
+                <option value="default">Default</option>
+                <option value="web">Web</option>
+                <option value="web_safari">Web Safari</option>
+                <option value="web_embedded">Web Embedded</option>
+                <option value="mweb">Mobile Web (mweb)</option>
+                <option value="ios">iOS</option>
+                <option value="android">Android</option>
+                <option value="android_vr">Android VR</option>
+                <option value="android_sdkless">Android (SDK-less)</option>
+                <option value="tv">TV</option>
+                <option value="tv_simply">TV Simply</option>
+                <option value="tv_embedded">TV Embedded</option>
+                <option value="all">All</option>
               </select>
             </div>
           </div>

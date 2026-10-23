@@ -30,14 +30,8 @@ export default function Header() {
         <Link href="/" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Home
         </Link>
-        <Link href="/about" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
-          About
-        </Link>
         <Link href="/playlist" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Playlist
-        </Link>
-        <Link href="/transcript" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
-          Transcript
         </Link>
         <Link href="/subtitle" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
           Subtitle

@@ -1,5 +1,6 @@
 export interface PreflightRequest {
   inputs: string[];
+  player_client?: string;
 }
 
 export interface PreflightStats {
@@ -33,15 +34,15 @@ const getApiUrl = () => {
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 };
 
-export async function checkPreflight(inputs: string[], signal?: AbortSignal): Promise<PreflightResponse> {
+export async function checkPreflight(inputs: string[], player_client: string, signal?: AbortSignal): Promise<PreflightResponse> {
   const apiUrl = getApiUrl();
-  console.log('[PreflightService] checkPreflight invoked', { apiUrl, inputs });
+  console.log('[PreflightService] checkPreflight invoked', { apiUrl, inputs, player_client });
   
   try {
     const res = await fetch(`${apiUrl}/preflight`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inputs }),
+      body: JSON.stringify({ inputs, player_client }),
       signal
     });
 
