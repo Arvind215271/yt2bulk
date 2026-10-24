@@ -393,3 +393,4 @@ Keep each workstream in the exact Markdown format you supplied, with every gener
 **One important detail:** Workstream `002` must not enumerate thousands of playlist video IDs when playlist metadata is missing. It should retrieve the playlist's metadata and use its video count to estimate the required work. When cached playlist metadata is available, it should inspect the available video IDs and perform the normal per-video cache accounting.
 
 This gives you **6 workstreams total**, without creating separate workstreams for trivial helpers or individual tests.
+

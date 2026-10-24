@@ -1,14 +1,14 @@
 export const theme = {
   colors: {
-    bg: '#050505',
-    panelBg: '#121212',
-    borderColor: '#2a0808',
-    primaryRed: '#ff1e1e',
-    primaryRedHover: '#e01212',
-    accentGlow: 'rgba(255, 30, 30, 0.15)',
-    textMain: '#f0f0f0',
-    textMuted: '#888888',
-    outputCode: '#ff8888',
+    bg: '#000000',
+    panelBg: '#141414',
+    borderColor: '#3a1010',
+    primaryRed: '#ff2222',
+    primaryRedHover: '#e01515',
+    accentGlow: 'rgba(255, 34, 34, 0.2)',
+    textMain: '#ffffff',
+    textMuted: '#9e9e9e',
+    outputCode: '#ff9999',
   },
   fonts: {
     mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',

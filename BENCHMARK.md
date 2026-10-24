@@ -267,28 +267,36 @@ Yt2bulk avoids this by managing workers internally.
 
 ---
 
-# Warm Cache Effect
+# Warm vs Cold Pool Benchmark
 
-The first request is usually slower because it initializes:
+We benchmarked playlist processing with 316 videos to compare Cold (fresh processes per request) vs. Warm (persistent, pre-initialized) worker pools.
 
-* Python worker
-* yt-dlp
-* YouTube extraction logic
-* internal cache
+## Cold Pool vs Warm Pool (316 Videos)
 
-After warmup:
+| Workers | Cold Total | Warm Total | Improvement |
+|:---:|---:|---:|---:|
+| 8 | 44.8s | 41.5s | +7.4% |
+| 16 | 27.3s | 23.6s | +13.5% |
+| 32 | 23.4s | 16.0s | +31.6% |
+| 64 | 30.7s | 18.1s | +41.0% |
 
-```
-Average request:
-~4 seconds
+### Key Takeaways:
+* **Warm is the absolute winner** for metadata extraction speed. Persistent workers avoid repeated initialization costs, leading to significantly faster throughput as playlist size grows.
+* **Warm workers scale better:** Once initialized, they are ready to serve subsequent playlist requests, dramatically reducing the per-request latency.
 
-After cache:
-~2.5 seconds for common requests
-```
+## Large Scale Processing (5,000 Videos)
 
-The warmup cost is a one-time startup cost.
+Processing 5,000 videos demonstrates the efficiency of the worker pool at scale.
 
----
+| Workers | Total Time | Throughput (Videos/sec) |
+|:---:|---:|---:|
+| 16 | 810.7s | 6.17 |
+| 32 | 427.6s | 11.69 |
+| 64 | 225.3s | 22.19 |
+| 128 | 145.5s | 34.36 |
+| 256 | 132.0s | 37.88 |
+
+*Note: At higher worker counts, YouTube may rate-limit subtitle downloads, resulting in empty or missing subtitles. Therefore, using 4-64 workers is recommended; generally, for larger playlists, a lower worker count is preferred to maintain stability.*
 
 # Conclusion
 
@@ -309,4 +317,5 @@ The worker model becomes increasingly beneficial when processing:
 * large YouTube datasets
 
 Yt2bulk is designed around long-running workloads where repeatedly starting `yt-dlp` would become the bottleneck.
+
 
