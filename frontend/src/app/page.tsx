@@ -54,7 +54,7 @@ export default function Home() {
         {/* Hero Section */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
           <p style={{ color: theme.colors.textMuted, fontSize: '1.15rem', maxWidth: '700px', lineHeight: '1.6' }}>
-            High-performance local tool for unrestricted YouTube metadata, subtitle, and transcript extraction.
+            A fast, local-first tool for extracting YouTube metadata, subtitles, and transcripts.
           </p>
         </div>
 
