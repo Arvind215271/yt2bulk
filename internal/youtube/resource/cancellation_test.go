@@ -31,7 +31,7 @@ func TestCancellation_BeforeWorkStarts(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{FieldPlanner: fp, ExecutionPlan: ep}
@@ -72,7 +72,7 @@ func TestCancellation_WaitingForConcurrency(t *testing.T) {
 
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid1"},
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid2"},
@@ -137,8 +137,8 @@ func TestCancellation_BetweenPipelineStages(t *testing.T) {
 	}
 
 	log := logger.New("test")
-	metaSvc := metadata.NewService(nil, metaProv)
-	descSvc := description.NewService()
+	metaSvc := metadata.NewService(nil, metaProv, log)
+	descSvc := description.NewService(log)
 	c := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
 	subSvc := subtitle.NewSubtitleService(c, log, subFetcher)
 	transSvc := transcript.NewService(log)
@@ -146,7 +146,7 @@ func TestCancellation_BetweenPipelineStages(t *testing.T) {
 
 	pipelineSvc := pipeline.NewService(metaSvc, descSvc, subSvc, transSvc, sigSvc, log, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText}, log)
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -217,8 +217,8 @@ func TestCancellation_DuringSubtitleExecution(t *testing.T) {
 	}
 
 	log := logger.New("test")
-	metaSvc := metadata.NewService(nil, metaProv)
-	descSvc := description.NewService()
+	metaSvc := metadata.NewService(nil, metaProv, log)
+	descSvc := description.NewService(log)
 	c := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
 	subSvc := subtitle.NewSubtitleService(c, log, subFetcher)
 	transSvc := transcript.NewService(log)
@@ -226,7 +226,7 @@ func TestCancellation_DuringSubtitleExecution(t *testing.T) {
 
 	pipelineSvc := pipeline.NewService(metaSvc, descSvc, subSvc, transSvc, sigSvc, log, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText}, log)
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -281,7 +281,7 @@ func TestCancellation_GenuineFailureBeforeCancellation(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "fail_vid"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{FieldPlanner: fp, ExecutionPlan: ep}
@@ -324,7 +324,7 @@ func TestCancellation_SuccessfulOperationFollowedByCancellation(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid1"},
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid2"},
@@ -388,7 +388,7 @@ func TestCancellation_PlaylistCancellation(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypePlaylist, ID: "pl1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{FieldPlanner: fp, ExecutionPlan: ep}
@@ -426,7 +426,7 @@ func TestCancellation_NormalExecutionRegression(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 2)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "v1"},
 		{InputType: youtubeurl.InputTypeVideo, ID: "v2"},

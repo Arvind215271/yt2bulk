@@ -1,4 +1,4 @@
- e# Yt2bulk
+# Yt2bulk
 
 Yt2bulk is a Go application for extracting and processing YouTube data.
 

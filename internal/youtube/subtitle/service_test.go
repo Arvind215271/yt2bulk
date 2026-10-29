@@ -26,6 +26,12 @@ func TestSubtitleService_DownloadSubtitleWithStats_CacheHit(t *testing.T) {
 	log := logger.New("test")
 	c := cache.NewManager(cache.Config{CacheDir: tmpDir, TTLDays: 1, MaxFiles: 100}, log)
 
+	// Pre-populate cache
+	err := c.Save("vid1", "subtitles.manual.en.json3", []byte("cached subtitle data"))
+	if err != nil {
+		t.Fatalf("failed to populate cache: %v", err)
+	}
+
 	meta := subtitle.SubtitleMetadata{
 		Manual: []subtitle.SubtitleTrack{
 			{LanguageCode: "en", Formats: []string{"json3"}},

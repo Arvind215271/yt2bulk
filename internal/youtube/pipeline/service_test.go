@@ -23,6 +23,7 @@ import (
 type mockMetaProvider struct {
 	getVideoFunc         func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error)
 	getPlaylistItemsFunc func(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
+	getChannelItemsFunc  func(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
 }
 
 func (m *mockMetaProvider) GetVideo(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error) {
@@ -37,7 +38,16 @@ func (m *mockMetaProvider) GetPlaylistItems(ctx context.Context, playlistID stri
 	}
 	return nil, nil
 }
+func (m *mockMetaProvider) GetChannelItems(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+	if m.getChannelItemsFunc != nil {
+		return m.getChannelItemsFunc(ctx, channelURL, limit, st)
+	}
+	return nil, nil
+}
 func (m *mockMetaProvider) GetPlaylistMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error) {
+	return youtube.Playlist{}, nil
+}
+func (m *mockMetaProvider) GetChannel(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error) {
 	return youtube.Playlist{}, nil
 }
 
@@ -54,8 +64,8 @@ func (m *mockSubFetcher) GetSubtitle(ctx context.Context, videoID, language, sub
 
 func setupPipelineService(t *testing.T, metaProvider metadata.Provider, subFetcher subtitle.SubtitleFetcher) *pipeline.Service {
 	log := logger.New("test")
-	metaSvc := metadata.NewService(nil, metaProvider)
-	descSvc := description.NewService()
+	metaSvc := metadata.NewService(nil, metaProvider, log)
+	descSvc := description.NewService(log)
 	c := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
 	subSvc := subtitle.NewSubtitleService(c, log, subFetcher)
 	transSvc := transcript.NewService(log)
@@ -76,7 +86,7 @@ func TestPipeline_MetadataOnlySuccess(t *testing.T) {
 
 	svc := setupPipelineService(t, metaProv, &mockSubFetcher{})
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -125,7 +135,7 @@ func TestPipeline_MetadataAndSubtitleSuccess(t *testing.T) {
 
 	svc := setupPipelineService(t, metaProv, subFetch)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -166,7 +176,7 @@ func TestPipeline_MetadataFailure(t *testing.T) {
 
 	svc := setupPipelineService(t, metaProv, &mockSubFetcher{})
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -209,7 +219,7 @@ func TestPipeline_SubtitleFailure(t *testing.T) {
 
 	svc := setupPipelineService(t, metaProv, subFetch)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle, fields.FieldTranscriptText}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -247,7 +257,7 @@ func TestPipeline_SubtitleNotRequested(t *testing.T) {
 
 	svc := setupPipelineService(t, metaProv, &mockSubFetcher{})
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{

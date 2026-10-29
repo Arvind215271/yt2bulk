@@ -1,4 +1,3 @@
-
 package preflight
 
 import (
@@ -44,58 +43,85 @@ func (s *ServiceImpl) resolveResources(ctx context.Context, inputs []*youtubeurl
 			}
 			resourceStats.DirectVideos.Add(videoStats)
 			resourceStats.Combined.Add(videoStats)
-		case youtubeurl.InputTypePlaylist:
+		case youtubeurl.InputTypePlaylist, youtubeurl.InputTypeChannel:
 			if s.logger != nil {
-				s.logger.Debug("fetching playlist metadata", "playlistID", input.ID)
-			}
-			playlist, _, err := s.metadataService.GetPlaylistMetadataWithStats(ctx, input.ID, metadata.ProviderYTDLP)
-			if err != nil {
-				if s.logger != nil {
-					s.logger.Warn("ytdlp playlist fetch failed, trying API", "playlistID", input.ID, "error", err)
-				}
-				// Fallback to API if YTDLP fails
-				playlist, _, err = s.metadataService.GetPlaylistMetadataWithStats(ctx, input.ID, metadata.ProviderAPI)
-				if err != nil {
-					return allVideoIDs, totalResources, playlistItemCount, resourceStats, fmt.Errorf("failed to fetch playlist metadata: %w", err)
-				}
-			}
-			if s.logger != nil {
-				s.logger.Debug("fetched playlist metadata", "playlistID", input.ID, "itemCount", playlist.ItemCount)
+				s.logger.Debug("fetching collection metadata", "type", input.InputType, "id", input.ID)
 			}
 
-			if totalResources+playlist.ItemCount > s.maxLimit {
-				if s.logger != nil {
-					s.logger.Warn("!!! EXPORT LIMIT EXCEEDED (PLAYLIST)", "totalResources", totalResources, "itemCount", playlist.ItemCount, "maxLimit", s.maxLimit)
+			// Helper to fetch collection metadata (playlist or channel)
+			fetchFunc := func(provider metadata.ProviderType) (int, error) {
+				var count int
+				if input.InputType == youtubeurl.InputTypePlaylist {
+					playlist, _, err := s.metadataService.GetPlaylistMetadataWithStats(ctx, input.ID, provider)
+					if err != nil {
+						return 0, err
+					}
+					count = playlist.ItemCount
+				} else {
+					channel, _, err := s.metadataService.GetChannelWithStats(ctx, input.ID, provider)
+					if err != nil {
+						return 0, err
+					}
+					count = channel.ItemCount
 				}
-				// FIX: Update totalResources to reflect the reached amount when returning error
-				finalTotal := totalResources + playlist.ItemCount
+				return count, nil
+			}
+
+			// Default to YTDLP only as requested.
+			itemCount, err := fetchFunc(metadata.ProviderYTDLP)
+			if err != nil {
+				if s.logger != nil {
+					s.logger.Error("ytdlp collection fetch failed", "type", input.InputType, "id", input.ID, "error", err)
+				}
+				return allVideoIDs, totalResources, playlistItemCount, resourceStats, fmt.Errorf("failed to fetch collection metadata via ytdlp: %w", err)
+			}
+
+			if s.logger != nil {
+				s.logger.Debug("fetched collection metadata", "type", input.InputType, "id", input.ID, "itemCount", itemCount)
+			}
+
+			if totalResources+itemCount > s.maxLimit {
+				if s.logger != nil {
+					s.logger.Warn("!!! EXPORT LIMIT EXCEEDED (COLLECTION)", "totalResources", totalResources, "itemCount", itemCount, "maxLimit", s.maxLimit)
+				}
+				finalTotal := totalResources + itemCount
 				return allVideoIDs, finalTotal, playlistItemCount, resourceStats, fmt.Errorf("EXPORT_LIMIT_EXCEEDED: reached %d, max allowed %d", finalTotal, s.maxLimit)
 			}
 
 			itemStats := PreflightStats{
 				Type:             "video",
-				ItemCount:        playlist.ItemCount,
+				ItemCount:        itemCount,
 				MetadataCached:   0,
-				MetadataUpstream: playlist.ItemCount,
-				SubtitleUpstream: playlist.ItemCount,
+				MetadataUpstream: itemCount,
+				SubtitleUpstream: itemCount,
 			}
 
-			playlistStats := PlaylistPreflightStats{
-				Type:           "playlist",
-				TotalPlaylists: 1,
-				TotalVideos:    playlist.ItemCount,
-				Items:          itemStats,
+			if input.InputType == youtubeurl.InputTypePlaylist {
+				playlistStats := PlaylistPreflightStats{
+					Type:           "playlist",
+					TotalPlaylists: 1,
+					TotalVideos:    itemCount,
+					Items:          itemStats,
+				}
+				resourceStats.Playlists.Add(playlistStats)
+			} else {
+				channelStats := ChannelPreflightStats{
+					Type:          "channel",
+					TotalChannels: 1,
+					TotalVideos:   itemCount,
+					Items:         itemStats,
+				}
+				resourceStats.Channels.Add(channelStats)
 			}
-			resourceStats.Playlists.Add(playlistStats)
 
-			// Combined stats should include the video-level stats from the playlist
+			// Combined stats should include the video-level stats from the collection
 			resourceStats.Combined.Add(itemStats)
 
-			if playlist.ItemCount == 0 && s.logger != nil {
-				s.logger.Warn("playlist fetched with 0 items", "playlistID", input.ID)
+			if itemCount == 0 && s.logger != nil {
+				s.logger.Warn("collection fetched with 0 items", "type", input.InputType, "id", input.ID)
 			}
-			totalResources += playlist.ItemCount
-			playlistItemCount += playlist.ItemCount
+			totalResources += itemCount
+			playlistItemCount += itemCount
 		default:
 			return allVideoIDs, totalResources, playlistItemCount, resourceStats, fmt.Errorf("unsupported input type: %s", input.InputType)
 		}

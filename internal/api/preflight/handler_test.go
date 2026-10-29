@@ -218,3 +218,13 @@ func (m *MockYtdlpProvider) GetVideo(ctx context.Context, videoID string, st *st
 	args := m.Called(ctx, videoID, st)
 	return args.Get(0).(youtube.Video), args.Error(1)
 }
+
+func (m *MockYtdlpProvider) GetChannel(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error) {
+	args := m.Called(ctx, channelURL, st)
+	return args.Get(0).(youtube.Playlist), args.Error(1)
+}
+
+func (m *MockYtdlpProvider) GetChannelItems(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+	args := m.Called(ctx, channelURL, limit, st)
+	return args.Get(0).([]youtube.PlaylistItem), args.Error(1)
+}

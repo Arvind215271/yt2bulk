@@ -7,6 +7,7 @@
 *.dll
 *.so
 *.dylib
+yt2bulk
 
 # Test binary, built with `go test -c`
 *.test
@@ -52,6 +53,7 @@ frontend/node_modules
 
 # Frontend Next modules
 frontend/.next
+frontend/out
 # Python virtual environment
 venv/
 .venv/
@@ -66,3 +68,5 @@ tmp/
 cookies.txt
 *.b64
 *.hex
+debug/channel_worker_response.json
+docs/model/

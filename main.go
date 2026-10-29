@@ -16,6 +16,7 @@ import (
 
 	// api
 	"github.com/Arvind215271/yt2bulk/internal/api"
+	apiChannel "github.com/Arvind215271/yt2bulk/internal/api/channel"
 	"github.com/Arvind215271/yt2bulk/internal/api/export"
 	apiPlaylist "github.com/Arvind215271/yt2bulk/internal/api/playlist"
 	apiPreflight "github.com/Arvind215271/yt2bulk/internal/api/preflight"
@@ -211,6 +212,9 @@ func main() {
 
 	transcriptHandler := apiTranscript.NewHandler(resourceService, preflightService, logger)
 	e.POST("/transcript", transcriptHandler.GetTranscript)
+
+	channelHandler := apiChannel.NewHandler(youtubeService, preflightService, logger)
+	apiChannel.RegisterChannelRoutes(e.Group("/channel"), channelHandler)
 
 	playlistHandler := apiPlaylist.NewHandler(youtubeService, preflightService, logger)
 	apiPlaylist.RegisterPlaylistRoutes(e.Group("/playlist"), playlistHandler)

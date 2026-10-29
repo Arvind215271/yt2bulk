@@ -7,7 +7,6 @@ import (
 	"github.com/Arvind215271/yt2bulk/internal/youtube"
 )
 
-
 // ParseURL validates a YouTube URL,
 // extracts the resource ID,
 // and returns a normalized YouTube input.
@@ -38,9 +37,9 @@ func Parse(raw string) (*YouTubeInput, error) {
 	videoID := extractVideoID(u)
 	if videoID != "" {
 		return &YouTubeInput{
-			InputType:    InputTypeVideo,
-			ID:           videoID,
-			OriginalURL:  raw,
+			InputType:     InputTypeVideo,
+			ID:            videoID,
+			OriginalURL:   raw,
 			NormalizedURL: normalizeVideoURL(videoID),
 		}, nil
 	}
@@ -49,11 +48,37 @@ func Parse(raw string) (*YouTubeInput, error) {
 	playlistID := u.Query().Get("list")
 	if playlistID != "" {
 		return &YouTubeInput{
-			InputType:    InputTypePlaylist,
-			ID:           playlistID,
-			OriginalURL:  raw,
+			InputType:     InputTypePlaylist,
+			ID:            playlistID,
+			OriginalURL:   raw,
 			NormalizedURL: normalizePlaylistURL(playlistID),
 		}, nil
+	}
+
+	// Handle channels: /@handle, /user/username, /channel/ID
+	path := strings.Trim(u.Path, "/")
+	if path != "" {
+		parts := strings.Split(path, "/")
+		if len(parts) >= 1 {
+			// Basic heuristic for channel URLs
+			isChannel := false
+			if strings.HasPrefix(path, "@") ||
+				parts[0] == "channel" ||
+				parts[0] == "user" ||
+				parts[0] == "c" {
+				isChannel = true
+			}
+
+			if isChannel {
+				return &YouTubeInput{
+					InputType:   InputTypeChannel,
+					ID:          "https://www.youtube.com/" + path, // Use full canonical URL as ID
+					OriginalURL: raw,
+					// Ensure the normalized URL includes the base domain for yt-dlp to recognize it as a valid URL
+					NormalizedURL: "https://www.youtube.com/" + path,
+				}, nil
+			}
+		}
 	}
 
 	return nil, youtube.Err.URL.MissingID()
@@ -108,4 +133,12 @@ func normalizePlaylistURL(id string) string {
 // normalizeVideoURL converts a video ID into a canonical URL.
 func normalizeVideoURL(id string) string {
 	return "https://www.youtube.com/watch?v=" + id
+}
+
+// normalizeChannelURL converts a channel identifier into a canonical URL.
+func normalizeChannelURL(id string) string {
+	if strings.HasPrefix(id, "@") || strings.HasPrefix(id, "c/") || strings.HasPrefix(id, "user/") || strings.HasPrefix(id, "channel/") {
+		return "https://www.youtube.com/" + id
+	}
+	return "https://www.youtube.com/channel/" + id
 }

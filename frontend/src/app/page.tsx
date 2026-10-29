@@ -172,6 +172,7 @@ export default function Home() {
           <ul style={{ paddingLeft: '1.25rem', color: theme.colors.textMuted, fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', lineHeight: '1.5' }}>
             <li><strong style={{ color: theme.colors.textMain }}><Link href="/export">Export (`/export`)</Link></strong>: Comprehensive metadata and transcript extraction in multiple formats.</li>
             <li><strong style={{ color: theme.colors.textMain }}><Link href="/playlist">Playlist (`/playlist`)</Link></strong>: Extract all individual video links and URLs from any playlist.</li>
+            <li><strong style={{ color: theme.colors.textMain }}><Link href="/channel">Channel (`/channel`)</Link></strong>: Browse, filter, and extract videos from any YouTube channel.</li>
             <li><strong style={{ color: theme.colors.textMain }}><Link href="/subtitle">Subtitle (`/subtitle`)</Link></strong>: Browse and download manual or auto-generated subtitle tracks.</li>
             <li><strong style={{ color: theme.colors.textMain }}><Link href="/preflight">Preflight (`/preflight`)</Link></strong>: Pre-flight analysis, accounting, and resource estimation for playlist pipelines.</li>
           </ul>

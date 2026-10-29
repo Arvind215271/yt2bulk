@@ -199,6 +199,44 @@ func (p *SinglePool) GetPlaylistMetadata(
 	return result, nil
 }
 
+func (p *SinglePool) GetChannel(
+	ctx context.Context,
+	channelURL string,
+	st *stats.MetadataStats,
+) (map[string]any, error) {
+	if st != nil {
+		st.YTDLPRequests++
+	}
+	key := p.cache.ChannelKey()
+
+	data, err := p.cache.Get(channelURL, key)
+	if err == nil {
+		var result map[string]any
+
+		if err := json.Unmarshal(data, &result); err == nil {
+			if st != nil {
+				st.CacheHits++
+			}
+			return result, nil
+		}
+	}
+
+	if st != nil {
+		st.CacheMisses++
+		st.UpstreamFetches++
+	}
+
+	result, err := p.manager.GetChannel(ctx, channelURL)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonData, _ := json.Marshal(result)
+	_ = p.cache.Save(channelURL, key, jsonData)
+
+	return result, nil
+}
+
 func (p *SinglePool) GetPlaylistSurfaceMetadata(
 	ctx context.Context,
 	playlistID string,

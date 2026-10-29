@@ -105,7 +105,7 @@ func TestPlanner_VideoTitle(t *testing.T) {
 	resources := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid123"},
 	}
-	fp, err := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, err := fields.NewPlanner([]string{fields.FieldTitle}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -127,7 +127,7 @@ func TestPlanner_VideoSignal(t *testing.T) {
 	resources := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid123"},
 	}
-	fp, err := fields.NewPlanner([]string{fields.FieldTranscriptSignal})
+	fp, err := fields.NewPlanner([]string{fields.FieldTranscriptSignal}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -156,7 +156,7 @@ func TestPlanner_MixedResources(t *testing.T) {
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid123"},
 		{InputType: youtubeurl.InputTypePlaylist, ID: "PL123"},
 	}
-	fp, err := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, err := fields.NewPlanner([]string{fields.FieldTitle}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

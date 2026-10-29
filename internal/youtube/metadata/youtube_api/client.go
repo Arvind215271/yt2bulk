@@ -47,7 +47,6 @@ func (c *Client) GetPlaylist(
 			"snippet",
 			"status",
 			"contentDetails",
-
 		}).
 		Id(playlistID).
 		Context(ctx).
@@ -68,6 +67,7 @@ func (c *Client) GetPlaylist(
 
 	return item, nil
 }
+
 // this returns the videoID in the playlist with some data
 func (c *Client) GetPlaylistItems(
 	ctx context.Context,
@@ -163,4 +163,38 @@ func (c *Client) GetVideos(
 	c.logger.Info("videos metadata fetched", "total", len(videos))
 
 	return videos, nil
+}
+
+// GetChannel fetches channel metadata from YouTube API
+func (c *Client) GetChannel(
+	ctx context.Context,
+	channelID string,
+) (*yt.Channel, error) {
+
+	c.logger.Debug("starting GetChannel", "channelID", channelID)
+
+	resp, err := c.service.Channels.
+		List([]string{
+			"snippet",
+			"contentDetails",
+			"statistics",
+		}).
+		Id(channelID).
+		Context(ctx).
+		Do()
+
+	if err != nil {
+		return nil, youtube.Err.Channel.FetchFailed().Wrap(err)
+	}
+
+	if len(resp.Items) == 0 {
+		return nil, youtube.Err.Channel.NotFound()
+	}
+
+	item := resp.Items[0]
+
+	c.logger.Debug("finished GetChannel", "channelID", channelID, "title", item.Snippet.Title)
+	c.logger.Info("channel metadata fetched", "channelID", channelID)
+
+	return item, nil
 }

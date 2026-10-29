@@ -76,6 +76,50 @@ func (p *Provider) GetPlaylistMetadata(
 	}, nil
 }
 
+// GetChannel fetches channel metadata using YouTube Data API
+func (p *Provider) GetChannel(
+	ctx context.Context,
+	channelID string,
+	st *stats.MetadataStats,
+) (youtube.Playlist, error) {
+	if st != nil {
+		st.APIRequests++
+		st.CacheMisses++
+		st.UpstreamFetches++
+	}
+
+	if p.client == nil {
+		return youtube.Playlist{}, youtube.Err.Channel.FetchFailed().Wrap(fmt.Errorf("youtube client not initialized"))
+	}
+
+	channel, err := p.client.GetChannel(ctx, channelID)
+	if err != nil {
+		return youtube.Playlist{}, err
+	}
+
+	if channel == nil {
+		return youtube.Playlist{}, youtube.Err.Channel.FetchFailed().Wrap(fmt.Errorf("channel not found"))
+	}
+
+	return youtube.Playlist{
+		ID:           channel.Id,
+		Title:        channel.Snippet.Title,
+		Description:  channel.Snippet.Description,
+		ChannelID:    channel.Id,
+		ChannelTitle: channel.Snippet.Title,
+		PublishedAt:  p.parseTime(channel.Snippet.PublishedAt),
+	}, nil
+}
+
+func (p *Provider) GetChannelItems(
+	ctx context.Context,
+	channelURL string,
+	limit int,
+	st *stats.MetadataStats,
+) ([]youtube.PlaylistItem, error) {
+	return nil, youtube.Err.Channel.FetchFailed().Wrap(fmt.Errorf("not implemented"))
+}
+
 // for a single video metadata fetching
 func (p *Provider) GetVideo(
 	ctx context.Context,

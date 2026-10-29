@@ -42,10 +42,6 @@ func (s *Service) GetPlaylistMetadataWithStats(
 		playlist, err = s.apiProvider.GetPlaylistMetadata(ctx, playlistID, &st)
 	} else if s.ytdlpProvider != nil {
 		playlist, err = s.ytdlpProvider.GetPlaylistMetadata(ctx, playlistID, &st)
-		if err != nil && s.apiProvider != nil {
-			st.Fallbacks++
-			playlist, err = s.apiProvider.GetPlaylistMetadata(ctx, playlistID, &st)
-		}
 	} else if s.apiProvider != nil {
 		playlist, err = s.apiProvider.GetPlaylistMetadata(ctx, playlistID, &st)
 	} else {
@@ -88,10 +84,6 @@ func (s *Service) GetPlaylistItemsWithStats(
 		items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
 	} else if s.ytdlpProvider != nil {
 		items, err = s.ytdlpProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
-		if err != nil && s.apiProvider != nil {
-			st.Fallbacks++
-			items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
-		}
 	} else if s.apiProvider != nil {
 		items, err = s.apiProvider.GetPlaylistItems(ctx, playlistID, limit, &st)
 	} else {
@@ -118,6 +110,44 @@ func (s *Service) GetPlaylistItems(
 	return items, err
 }
 
+func (s *Service) GetChannelItemsWithStats(
+	ctx context.Context,
+	channelURL string,
+	limit int,
+	providerType ProviderType,
+) ([]youtube.PlaylistItem, stats.MetadataStats, error) {
+	var st stats.MetadataStats
+	st.Attempts++
+
+	var items []youtube.PlaylistItem
+	var err error
+
+	if s.ytdlpProvider != nil {
+		items, err = s.ytdlpProvider.GetChannelItems(ctx, channelURL, limit, &st)
+	} else {
+		err = youtube.Err.Channel.FetchFailed()
+	}
+
+	if err != nil {
+		st.Failures++
+		s.logger.With("channel_url", channelURL, "error", err).Warn("Failed to fetch channel items")
+		return nil, st, err
+	}
+
+	st.Successes++
+	return items, st, nil
+}
+
+func (s *Service) GetChannelItems(
+	ctx context.Context,
+	channelURL string,
+	limit int,
+	providerType ProviderType,
+) ([]youtube.PlaylistItem, error) {
+	items, _, err := s.GetChannelItemsWithStats(ctx, channelURL, limit, providerType)
+	return items, err
+}
+
 func (s *Service) GetVideoWithStats(
 	ctx context.Context,
 	videoID string,
@@ -135,8 +165,14 @@ func (s *Service) GetVideoWithStats(
 	} else if s.ytdlpProvider != nil {
 		video, err = s.ytdlpProvider.GetVideo(ctx, videoID, &st)
 		if err != nil && s.apiProvider != nil {
-			st.Fallbacks++
-			video, err = s.apiProvider.GetVideo(ctx, videoID, &st)
+			tmpVideo, tmpErr := s.apiProvider.GetVideo(ctx, videoID, &st)
+			if tmpErr == nil {
+				st.Fallbacks++
+				video = tmpVideo
+				err = nil
+			} else {
+				err = tmpErr
+			}
 		}
 	} else if s.apiProvider != nil {
 		video, err = s.apiProvider.GetVideo(ctx, videoID, &st)
@@ -161,4 +197,40 @@ func (s *Service) GetVideo(
 ) (youtube.Video, error) {
 	video, _, err := s.GetVideoWithStats(ctx, videoID, providerType)
 	return video, err
+}
+
+func (s *Service) GetChannelWithStats(
+	ctx context.Context,
+	channelURL string,
+	providerType ProviderType,
+) (youtube.Playlist, stats.MetadataStats, error) {
+	var st stats.MetadataStats
+	st.Attempts++
+
+	var playlist youtube.Playlist
+	var err error
+
+	if s.ytdlpProvider != nil {
+		playlist, err = s.ytdlpProvider.GetChannel(ctx, channelURL, &st)
+	} else {
+		err = youtube.Err.Channel.FetchFailed()
+	}
+
+	if err != nil {
+		st.Failures++
+		s.logger.With("channel_url", channelURL, "error", err).Warn("Failed to fetch channel metadata")
+		return youtube.Playlist{}, st, err
+	}
+
+	st.Successes++
+	return playlist, st, nil
+}
+
+func (s *Service) GetChannel(
+	ctx context.Context,
+	channelURL string,
+	providerType ProviderType,
+) (youtube.Playlist, error) {
+	playlist, _, err := s.GetChannelWithStats(ctx, channelURL, providerType)
+	return playlist, err
 }

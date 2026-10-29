@@ -13,6 +13,14 @@ export default function ExportPage() {
   const { addError } = useError();
   const [inputs, setInputs] = useState('');
   const [format, setFormat] = useState('json');
+
+  React.useEffect(() => {
+    const savedInputs = localStorage.getItem('export_inputs');
+    if (savedInputs) {
+      setInputs(savedInputs);
+      localStorage.removeItem('export_inputs');
+    }
+  }, []);
   const [playerClient, setPlayerClient] = useState('default');
   const [selectedFields, setSelectedFields] = useState<string[]>([
     'id', 'title', 'channel_title', 'duration', 'transcript_text', 'transcript_signal'

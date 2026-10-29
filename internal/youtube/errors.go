@@ -13,6 +13,7 @@ type Errors struct {
 	Video    VideoErrors
 	Export   ExportErrors
 	URL      URLErrors
+	Channel  ChannelErrors
 }
 
 var Err = Errors{
@@ -20,12 +21,32 @@ var Err = Errors{
 	Video:    VideoErrors{},
 	Export:   ExportErrors{},
 	URL:      URLErrors{},
+	Channel:  ChannelErrors{},
 }
 
 type PlaylistErrors struct{}
 type VideoErrors struct{}
 type ExportErrors struct{}
 type URLErrors struct{}
+type ChannelErrors struct{}
+
+// Channel Errors
+
+func (ChannelErrors) NotFound() *api.AppError {
+	return api.NewError(
+		"CHANNEL_NOT_FOUND",
+		"Channel not found",
+		http.StatusNotFound,
+	)
+}
+
+func (ChannelErrors) FetchFailed() *api.AppError {
+	return api.NewError(
+		"CHANNEL_FETCH_FAILED",
+		"Failed to fetch channel",
+		http.StatusInternalServerError,
+	)
+}
 
 // Playlist Errors
 

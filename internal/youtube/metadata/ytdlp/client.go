@@ -123,3 +123,19 @@ func (c *Client) GetPlaylistMetadata(ctx context.Context, playlistID string, st 
 	err = json.Unmarshal(output, &meta)
 	return meta, err
 }
+
+func (c *Client) GetChannel(ctx context.Context, channelURL string, st *stats.MetadataStats) (YTPlaylistOutput, error) {
+	result, err := c.pool.GetChannel(ctx, channelURL, st)
+	if err != nil {
+		return YTPlaylistOutput{}, err
+	}
+
+	output, err := json.Marshal(result)
+	if err != nil {
+		return YTPlaylistOutput{}, err
+	}
+
+	var meta YTPlaylistOutput
+	err = json.Unmarshal(output, &meta)
+	return meta, err
+}

@@ -28,8 +28,24 @@ func NewManager(cfg Config, logger *logger.Logger) *Manager {
 	return &Manager{config: cfg, logger: logger}
 }
 
+func (m *Manager) safeID(id string) string {
+	// Sanitize the ID to be filesystem-friendly.
+	// If the ID is a full URL, attempt to extract the identifier (e.g. handle or channel ID).
+	if strings.HasPrefix(id, "http") {
+		// Try to extract the last part of the path
+		parts := strings.Split(strings.TrimRight(id, "/"), "/")
+		if len(parts) > 0 {
+			id = parts[len(parts)-1]
+		}
+	}
+
+	// Replace characters that are invalid or problematic in paths with underscores.
+	replacer := strings.NewReplacer(":", "_", "/", "_", "?", "_", "@", "_", "&", "_", "=", "_")
+	return replacer.Replace(id)
+}
+
 func (m *Manager) GetPath(id, filename string) string {
-	return filepath.Join(m.config.CacheDir, id, filename)
+	return filepath.Join(m.config.CacheDir, m.safeID(id), filename)
 }
 
 func (m *Manager) Exists(id, filename string) bool {
@@ -81,7 +97,7 @@ func (m *Manager) HasMetadata(id string) bool {
 
 // HasSubtitle checks if any subtitle file exists for a given video ID.
 func (m *Manager) HasSubtitle(id string) bool {
-	dir := filepath.Join(m.config.CacheDir, id)
+	dir := filepath.Join(m.config.CacheDir, m.safeID(id))
 
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -110,6 +126,10 @@ func (m *Manager) HasSubtitle(id string) bool {
 
 func (m *Manager) PlaylistKey() string {
 	return "playlist.json"
+}
+
+func (m *Manager) ChannelKey() string {
+	return "channel.json"
 }
 
 func (m *Manager) PlaylistMetadataKey() string {

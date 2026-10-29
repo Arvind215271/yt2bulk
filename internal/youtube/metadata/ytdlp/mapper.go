@@ -112,30 +112,41 @@ func MapPlaylist(meta YTPlaylistOutput) youtube.Playlist {
 	}
 
 	// Map entries as lightweight items
-	for _, entry := range meta.Entries {
-		item := youtube.PlaylistItem{
-			VideoID:     entry.ID,
-			Title:       entry.Title,
-			Description: entry.Description,
-			// Duration is in seconds for entries in YTPlaylistEntry
-			Duration:     time.Duration(entry.Duration) * time.Second,
-			ViewCount:    entry.ViewCount,
-			ChannelID:    entry.ChannelID,
-			ChannelTitle: entry.Channel,
-			URL:          entry.WebpageURL,
-		}
+	var flattenEntries func([]YTPlaylistEntry) []youtube.PlaylistItem
+	flattenEntries = func(entries []YTPlaylistEntry) []youtube.PlaylistItem {
+		var items []youtube.PlaylistItem
+		for _, entry := range entries {
+			if entry.Type == "playlist" {
+				items = append(items, flattenEntries(entry.Entries)...)
+				continue
+			}
 
-		// Map thumbnails for items
-		for _, t := range entry.Thumbnails {
-			item.Thumbnails = append(item.Thumbnails, youtube.Thumbnail{
-				URL:    t.URL,
-				Width:  t.Width,
-				Height: t.Height,
-			})
-		}
+			item := youtube.PlaylistItem{
+				VideoID:     entry.ID,
+				Title:       entry.Title,
+				Description: entry.Description,
+				// Duration is in seconds for entries in YTPlaylistEntry
+				Duration:     time.Duration(entry.Duration) * time.Second,
+				ViewCount:    entry.ViewCount,
+				ChannelID:    entry.ChannelID,
+				ChannelTitle: entry.Channel,
+				URL:          entry.WebpageURL,
+			}
 
-		playlist.Items = append(playlist.Items, item)
+			// Map thumbnails for items
+			for _, t := range entry.Thumbnails {
+				item.Thumbnails = append(item.Thumbnails, youtube.Thumbnail{
+					URL:    t.URL,
+					Width:  t.Width,
+					Height: t.Height,
+				})
+			}
+			items = append(items, item)
+		}
+		return items
 	}
+
+	playlist.Items = flattenEntries(meta.Entries)
 
 	return playlist
 }

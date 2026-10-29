@@ -113,6 +113,61 @@ type Playlist struct {
 	Errors []Error `json:"errors,omitempty"`
 }
 
+// ChannelThumbnail represents a channel thumbnail with extra yt-dlp specific fields.
+type ChannelThumbnail struct {
+	URL        string `json:"url"`
+	Width      int    `json:"width,omitempty"`
+	Height     int    `json:"height,omitempty"`
+	Preference int    `json:"preference,omitempty"`
+	ID         string `json:"id,omitempty"`
+	Resolution string `json:"resolution,omitempty"`
+}
+
+// CommonChannelFields represents the common fields found in channel entries and data.
+type CommonChannelFields struct {
+	ID                   string             `json:"id"`
+	Channel              string             `json:"channel,omitempty"`
+	ChannelID            string             `json:"channel_id,omitempty"`
+	Title                string             `json:"title,omitempty"`
+	Availability         string             `json:"availability,omitempty"`
+	ChannelFollowerCount int64              `json:"channel_follower_count,omitempty"`
+	Description          string             `json:"description,omitempty"`
+	Tags                 []string           `json:"tags,omitempty"`
+	Thumbnails           []ChannelThumbnail `json:"thumbnails,omitempty"`
+	UploaderID           string             `json:"uploader_id,omitempty"`
+	UploaderURL          string             `json:"uploader_url,omitempty"`
+	ChannelIsVerified    bool               `json:"channel_is_verified,omitempty"`
+	ModifiedDate         interface{}        `json:"modified_date,omitempty"`
+	ViewCount            interface{}        `json:"view_count,omitempty"`
+	PlaylistCount        interface{}        `json:"playlist_count,omitempty"`
+	Uploader             string             `json:"uploader,omitempty"`
+	ChannelURL           string             `json:"channel_url,omitempty"`
+	Type                 string             `json:"_type,omitempty"`
+}
+
+// ChannelEntry represents an entry (playlist or video) inside a channel response.
+type ChannelEntry struct {
+	CommonChannelFields
+	Duration   float64        `json:"duration,omitempty"`
+	Timestamp  interface{}    `json:"timestamp,omitempty"`
+	LiveStatus string         `json:"live_status,omitempty"`
+	IEKey      string         `json:"ie_key,omitempty"`
+	URL        string         `json:"url,omitempty"`
+	Entries    []ChannelEntry `json:"entries,omitempty"`
+}
+
+// ChannelResponse represents the top-level yt-dlp worker response for a channel.
+type ChannelResponse struct {
+	Ok   bool        `json:"ok"`
+	Data ChannelData `json:"data"`
+}
+
+// ChannelData represents the channel object inside ChannelResponse.
+type ChannelData struct {
+	CommonChannelFields
+	Entries []ChannelEntry `json:"entries,omitempty"`
+}
+
 // Video represents everything known about a single YouTube video,
 // including metadata, transcripts, descriptions, subtitles, and errors.
 type Video struct {

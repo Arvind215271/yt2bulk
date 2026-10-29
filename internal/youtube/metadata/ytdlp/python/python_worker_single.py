@@ -236,12 +236,18 @@ def main():
       req = recv()
       
       # Handle dynamic player_client
+      cmd = req.get("cmd")
       player_client = req.get("player_client")
+
+      if cmd == "channel":
+        player_client = None
+      elif not player_client:
+        player_client = "android"
+
       if player_client:
         ydl.params["extractor_args"]["youtube"]["player_client"] = [player_client]
       else:
-        # Default
-        ydl.params["extractor_args"]["youtube"]["player_client"] = ["android"]
+        ydl.params["extractor_args"]["youtube"].pop("player_client", None)
     except EOFError:
       break
     except Exception:
@@ -252,7 +258,6 @@ def main():
     is_heavy_cmd = False
 
     try:
-      cmd = req.get("cmd")
 
       if cmd in ["playlist", "playlist_metadata", "playlist_surface_metadata"]:
         is_heavy_cmd = True
@@ -270,6 +275,42 @@ def main():
           info = extract_with_retry(
               ydl,
               playlist_url,
+              download=False,
+          )
+
+        finally:
+          if old_extract_flat is None:
+            ydl.params.pop("extract_flat", None)
+          else:
+            ydl.params["extract_flat"] = old_extract_flat
+
+          if old_playlist_items is None:
+            ydl.params.pop("playlist_items", None)
+          else:
+            ydl.params["playlist_items"] = old_playlist_items
+
+        send({
+            "ok": True,
+            "data": info,
+        })
+
+        del info
+        continue
+
+      if cmd == "channel":
+        is_heavy_cmd = True
+        channel_url = req["channel_url"]
+
+        old_extract_flat = ydl.params.get("extract_flat")
+        old_playlist_items = ydl.params.get("playlist_items")
+
+        try:
+          ydl.params["extract_flat"] = True
+          ydl.params.pop("playlist_items", None)
+
+          info = extract_with_retry(
+              ydl,
+              channel_url,
               download=False,
           )
 

@@ -26,4 +26,17 @@ type Provider interface {
 		videoID string,
 		st *stats.MetadataStats,
 	) (youtube.Video, error)
+
+	GetChannel(
+		ctx context.Context,
+		channelURL string,
+		st *stats.MetadataStats,
+	) (youtube.Playlist, error)
+
+	GetChannelItems(
+		ctx context.Context,
+		channelURL string,
+		limit int,
+		st *stats.MetadataStats,
+	) ([]youtube.PlaylistItem, error)
 }

@@ -38,6 +38,9 @@ export default function Header() {
         <Link href="/playlist" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
           Playlist
         </Link>
+        <Link href="/channel" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
+          Channel
+        </Link>
         <Link href="/subtitle" style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>
           Subtitle
         </Link>
@@ -90,6 +93,9 @@ export default function Header() {
           </Link>
           <Link href="/playlist" onClick={() => setMenuOpen(false)} style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
             Playlist
+          </Link>
+          <Link href="/channel" onClick={() => setMenuOpen(false)} style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
+            Channel
           </Link>
           <Link href="/subtitle" onClick={() => setMenuOpen(false)} style={{ color: theme.colors.textMuted, textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
             Subtitle

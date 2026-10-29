@@ -20,6 +20,13 @@ type PlaylistRequest struct {
 	PlayerClient string          `json:"player_client,omitempty"`
 }
 
+type ChannelRequest struct {
+	Ctx          context.Context `json:"-"`
+	Cmd          string          `json:"cmd"`
+	ChannelURL   string          `json:"channel_url"`
+	PlayerClient string          `json:"player_client,omitempty"`
+}
+
 type PlaylistMetadataRequest struct {
 	Ctx          context.Context `json:"-"`
 	Cmd          string          `json:"cmd"`

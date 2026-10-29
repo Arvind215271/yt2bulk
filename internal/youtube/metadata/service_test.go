@@ -17,6 +17,15 @@ type mockProvider struct {
 	getVideoFunc         func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error)
 	getPlaylistItemsFunc func(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
 	getPlaylistMetaFunc  func(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error)
+	getChannelFunc       func(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error)
+	getChannelItemsFunc  func(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
+}
+
+func (m *mockProvider) GetChannelItems(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+	if m.getChannelItemsFunc != nil {
+		return m.getChannelItemsFunc(ctx, channelURL, limit, st)
+	}
+	return nil, nil
 }
 
 func (m *mockProvider) GetVideo(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error) {
@@ -36,6 +45,13 @@ func (m *mockProvider) GetPlaylistItems(ctx context.Context, playlistID string, 
 func (m *mockProvider) GetPlaylistMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error) {
 	if m.getPlaylistMetaFunc != nil {
 		return m.getPlaylistMetaFunc(ctx, playlistID, st)
+	}
+	return youtube.Playlist{}, nil
+}
+
+func (m *mockProvider) GetChannel(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error) {
+	if m.getChannelFunc != nil {
+		return m.getChannelFunc(ctx, channelURL, st)
 	}
 	return youtube.Playlist{}, nil
 }
@@ -60,41 +76,6 @@ func TestMetadataService_GetVideoWithStats_Success(t *testing.T) {
 		t.Errorf("expected video ID vid1, got %s", video.ID)
 	}
 	if st.Attempts != 1 || st.Successes != 1 || st.CacheHits != 1 || st.YTDLPRequests != 1 {
-		t.Errorf("unexpected stats: %+v", st)
-	}
-}
-
-func TestMetadataService_GetVideoWithStats_Fallback(t *testing.T) {
-	ytdlp := &mockProvider{
-		getVideoFunc: func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error) {
-			if st != nil {
-				st.YTDLPRequests++
-				st.CacheMisses++
-				st.UpstreamFetches++
-			}
-			return youtube.Video{}, errors.New("ytdlp failed")
-		},
-	}
-	api := &mockProvider{
-		getVideoFunc: func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error) {
-			if st != nil {
-				st.APIRequests++
-				st.CacheMisses++
-				st.UpstreamFetches++
-			}
-			return youtube.Video{ID: videoID, Title: "API Video"}, nil
-		},
-	}
-
-	svc := metadata.NewService(api, ytdlp, logger.New("test"))
-	video, st, err := svc.GetVideoWithStats(context.Background(), "vid1", metadata.ProviderYTDLP)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if video.Title != "API Video" {
-		t.Errorf("expected API Video title, got %s", video.Title)
-	}
-	if st.Attempts != 1 || st.Successes != 1 || st.Fallbacks != 1 || st.YTDLPRequests != 1 || st.APIRequests != 1 {
 		t.Errorf("unexpected stats: %+v", st)
 	}
 }
@@ -142,7 +123,7 @@ func TestMetadataService_GetPlaylistMetadataWithStats_Success(t *testing.T) {
 	}
 }
 
-func TestMetadataService_GetPlaylistMetadataWithStats_Fallback(t *testing.T) {
+func TestMetadataService_GetPlaylistMetadataWithStats_Failure(t *testing.T) {
 	ytdlp := &mockProvider{
 		getPlaylistMetaFunc: func(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error) {
 			if st != nil {
@@ -151,24 +132,13 @@ func TestMetadataService_GetPlaylistMetadataWithStats_Fallback(t *testing.T) {
 			return youtube.Playlist{}, errors.New("ytdlp failed")
 		},
 	}
-	api := &mockProvider{
-		getPlaylistMetaFunc: func(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error) {
-			if st != nil {
-				st.APIRequests++
-			}
-			return youtube.Playlist{ID: playlistID, Title: "API Playlist"}, nil
-		},
-	}
 
-	svc := metadata.NewService(api, ytdlp, logger.New("test"))
-	playlist, st, err := svc.GetPlaylistMetadataWithStats(context.Background(), "pl1", metadata.ProviderYTDLP)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	svc := metadata.NewService(nil, ytdlp, logger.New("test"))
+	_, st, err := svc.GetPlaylistMetadataWithStats(context.Background(), "pl1", metadata.ProviderYTDLP)
+	if err == nil {
+		t.Fatalf("expected error, got nil")
 	}
-	if playlist.Title != "API Playlist" {
-		t.Errorf("expected API Playlist title, got %s", playlist.Title)
-	}
-	if st.Attempts != 1 || st.Successes != 1 || st.Fallbacks != 1 || st.YTDLPRequests != 1 || st.APIRequests != 1 {
+	if st.Attempts != 1 || st.Failures != 1 || st.Successes != 0 {
 		t.Errorf("unexpected stats: %+v", st)
 	}
 }

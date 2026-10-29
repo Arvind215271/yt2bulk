@@ -173,6 +173,69 @@ func (c *SingleClient) GetPlaylistMetadata(
 	return resp.Data, nil
 }
 
+func (c *SingleClient) GetChannel(
+	ctx context.Context,
+	channelURL string,
+) (map[string]any, error) {
+	c.logger.Debug(
+		"fetching channel items",
+		"channel_url", channelURL,
+	)
+
+	req := ChannelRequest{
+		Cmd:        "channel",
+		ChannelURL: channelURL,
+	}
+
+	if err := c.worker.SendCommand(req); err != nil {
+		return nil, fmt.Errorf(
+			"send channel request for channel %s: %w",
+			channelURL,
+			err,
+		)
+	}
+
+	respData, err := c.worker.ReceiveResponse()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"receive channel response for channel %s: %w",
+			channelURL,
+			err,
+		)
+	}
+
+	var resp WorkerResponse
+
+	if err := json.Unmarshal(respData, &resp); err != nil {
+		return nil, fmt.Errorf(
+			"decode channel response for channel %s: %w",
+			channelURL,
+			err,
+		)
+	}
+
+	if !resp.Ok {
+		c.logger.Warn(
+			"channel request failed",
+			"channel_url", channelURL,
+			"error", resp.Err,
+		)
+
+		return nil, fmt.Errorf(
+			"worker channel error for channel %s: %s",
+			channelURL,
+			resp.Err,
+		)
+	}
+
+	c.logger.Debug(
+		"channel items fetched",
+		"channel_url", channelURL,
+	)
+
+	return resp.Data, nil
+}
+
 func (c *SingleClient) GetPlaylistSurfaceMetadata(
 	ctx context.Context,
 	playlistID string,

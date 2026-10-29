@@ -25,6 +25,8 @@ type mockMetaProvider struct {
 	getVideoFunc         func(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error)
 	getPlaylistItemsFunc func(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
 	getPlaylistMetaFunc  func(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error)
+	getChannelFunc       func(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error)
+	getChannelItemsFunc  func(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
 }
 
 func (m *mockMetaProvider) GetVideo(ctx context.Context, videoID string, st *stats.MetadataStats) (youtube.Video, error) {
@@ -51,6 +53,20 @@ func (m *mockMetaProvider) GetPlaylistMetadata(ctx context.Context, playlistID s
 	return youtube.Playlist{ID: playlistID, Title: "Test Playlist"}, nil
 }
 
+func (m *mockMetaProvider) GetChannel(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error) {
+	if m.getChannelFunc != nil {
+		return m.getChannelFunc(ctx, channelURL, st)
+	}
+	return youtube.Playlist{}, nil
+}
+
+func (m *mockMetaProvider) GetChannelItems(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+	if m.getChannelItemsFunc != nil {
+		return m.getChannelItemsFunc(ctx, channelURL, limit, st)
+	}
+	return nil, nil
+}
+
 type mockSubFetcher struct {
 	getSubtitleFunc func(ctx context.Context, videoID, language, subType, format string) ([]byte, error)
 }
@@ -64,10 +80,10 @@ func (m *mockSubFetcher) GetSubtitle(ctx context.Context, videoID, language, sub
 
 func setupResourceService(t *testing.T, metaProvider metadata.Provider, subFetcher subtitle.SubtitleFetcher, concurrency int) *resource.Service {
 	log := logger.New("test")
-	metaSvc := metadata.NewService(nil, metaProvider)
-	descSvc := description.NewService()
-	_ = cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
-	subSvc := subtitle.NewSubtitleService(log, subFetcher)
+	metaSvc := metadata.NewService(nil, metaProvider, log)
+	descSvc := description.NewService(log)
+	cacheMgr := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
+	subSvc := subtitle.NewSubtitleService(cacheMgr, log, subFetcher)
 	transSvc := transcript.NewService(log)
 	sigSvc := signal.NewSignalService()
 
@@ -88,7 +104,7 @@ func TestProcessVideoWithStats(t *testing.T) {
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 1)
 	_ = svc
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypeVideo, ID: "vid1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -96,8 +112,10 @@ func TestProcessVideoWithStats(t *testing.T) {
 		ExecutionPlan: ep,
 	}
 
-	metaSvc := metadata.NewService(nil, metaProv)
-	pipelineSvc := pipeline.NewService(metaSvc, description.NewService(logger.New("test")), subtitle.NewSubtitleService(logger.New("test"), &mockSubFetcher{}), transcript.NewService(logger.New("test")), signal.NewSignalService(), logger.New("test"), 1)
+	log := logger.New("test")
+	cacheMgr := cache.NewManager(cache.Config{CacheDir: t.TempDir(), TTLDays: 1, MaxFiles: 100}, log)
+	metaSvc := metadata.NewService(nil, metaProv, log)
+	pipelineSvc := pipeline.NewService(metaSvc, description.NewService(log), subtitle.NewSubtitleService(cacheMgr, log, &mockSubFetcher{}), transcript.NewService(log), signal.NewSignalService(), log, 1)
 
 	video, resStats := resource.ProcessVideoWithStats(context.Background(), pipelineSvc, "vid1", req)
 	if video.Title != "Video vid1" {
@@ -133,7 +151,7 @@ func TestProcessPlaylistWithStats(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 2)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{{InputType: youtubeurl.InputTypePlaylist, ID: "pl1"}}
 	ep := planner.Build(inputs, fp)
 	req := &pipeline.Request{
@@ -166,7 +184,7 @@ func TestProcessResourcesWithStats_MultiAndConcurrent(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 4)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid1"},
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid2"},
@@ -209,7 +227,7 @@ func TestProcessResourcesWithStats_PartialFailure(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 2)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "good_vid"},
 		{InputType: youtubeurl.InputTypeVideo, ID: "fail_vid"},
@@ -243,7 +261,7 @@ func TestProcessResourcesWithStats_Cancellation(t *testing.T) {
 	}
 	svc := setupResourceService(t, metaProv, &mockSubFetcher{}, 1)
 
-	fp, _ := fields.NewPlanner([]string{fields.FieldTitle})
+	fp, _ := fields.NewPlanner([]string{fields.FieldTitle}, logger.New("test"))
 	inputs := []youtubeurl.YouTubeInput{
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid1"},
 		{InputType: youtubeurl.InputTypeVideo, ID: "vid2"},

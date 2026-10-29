@@ -77,18 +77,20 @@ type PlaylistSurfaceMetadata struct {
 }
 
 type YTPlaylistEntry struct {
-	ID           string           `json:"id"`
-	Title        string           `json:"title"`
-	Description  string           `json:"description"`
-	Duration     int              `json:"duration"`
-	ViewCount    uint64           `json:"view_count"`
-	ChannelID    string           `json:"channel_id"`
-	Channel      string           `json:"channel"`
-	ChannelIDAlt string           `json:"uploader_id"`
-	WebpageURL   string           `json:"webpage_url"`
-	OriginalURL  string           `json:"original_url"`
-	Thumbnail    string           `json:"thumbnail"`
-	Thumbnails   []ThumbnailEntry `json:"thumbnails"`
+	ID           string            `json:"id"`
+	Title        string            `json:"title"`
+	Description  string            `json:"description"`
+	Duration     int               `json:"duration"`
+	ViewCount    uint64            `json:"view_count"`
+	ChannelID    string            `json:"channel_id"`
+	Channel      string            `json:"channel"`
+	ChannelIDAlt string            `json:"uploader_id"`
+	WebpageURL   string            `json:"webpage_url"`
+	OriginalURL  string            `json:"original_url"`
+	Thumbnail    string            `json:"thumbnail"`
+	Thumbnails   []ThumbnailEntry  `json:"thumbnails"`
+	Type         string            `json:"_type,omitempty"`
+	Entries      []YTPlaylistEntry `json:"entries,omitempty"`
 }
 
 type ThumbnailEntry struct {

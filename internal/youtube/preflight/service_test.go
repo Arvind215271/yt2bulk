@@ -17,6 +17,8 @@ import (
 
 type mockProvider struct {
 	getPlaylistMetadataFunc func(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error)
+	getChannelFunc          func(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error)
+	getChannelItemsFunc     func(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error)
 }
 
 func (m *mockProvider) GetPlaylistMetadata(ctx context.Context, playlistID string, st *stats.MetadataStats) (youtube.Playlist, error) {
@@ -24,6 +26,20 @@ func (m *mockProvider) GetPlaylistMetadata(ctx context.Context, playlistID strin
 		return m.getPlaylistMetadataFunc(ctx, playlistID, st)
 	}
 	return youtube.Playlist{}, nil
+}
+
+func (m *mockProvider) GetChannel(ctx context.Context, channelURL string, st *stats.MetadataStats) (youtube.Playlist, error) {
+	if m.getChannelFunc != nil {
+		return m.getChannelFunc(ctx, channelURL, st)
+	}
+	return youtube.Playlist{}, nil
+}
+
+func (m *mockProvider) GetChannelItems(ctx context.Context, channelURL string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
+	if m.getChannelItemsFunc != nil {
+		return m.getChannelItemsFunc(ctx, channelURL, limit, st)
+	}
+	return nil, nil
 }
 
 func (m *mockProvider) GetPlaylistItems(ctx context.Context, playlistID string, limit int, st *stats.MetadataStats) ([]youtube.PlaylistItem, error) {
@@ -75,7 +91,7 @@ func TestService_Check(t *testing.T) {
 			},
 		}
 
-		metaSvc := metadata.NewService(mockProv, nil)
+		metaSvc := metadata.NewService(mockProv, nil, logger.New("test"))
 		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		req := Request{
@@ -131,7 +147,7 @@ func TestService_Check(t *testing.T) {
 		// vid1 in cache, vid2 not in cache
 		manager.Save("vid1", manager.VideoKey(), []byte("{}"))
 
-		planner, _ := fields.NewPlanner([]string{})
+		planner, _ := fields.NewPlanner([]string{}, logger.New("test"))
 
 		res, err := svc.Estimate(context.Background(), videoIDs, planner)
 		if err != nil {
@@ -150,9 +166,9 @@ func TestService_Check(t *testing.T) {
 		svc := NewService(nil, nil, logger.New("test"), 100)
 
 		// Planner with transcript_text (which enforces subtitle stage)
-		pWithSub, _ := fields.NewPlanner([]string{"transcript_text"})
+		pWithSub, _ := fields.NewPlanner([]string{"transcript_text"}, logger.New("test"))
 		// Planner without subtitles/transcripts (e.g. only id/title)
-		pNoSub, _ := fields.NewPlanner([]string{"id", "title"})
+		pNoSub, _ := fields.NewPlanner([]string{"id", "title"}, logger.New("test"))
 
 		videoIDs := []string{"vid1", "vid2", "vid3"}
 
@@ -185,14 +201,14 @@ func TestService_Check(t *testing.T) {
 			},
 		}
 
-		metaSvc := metadata.NewService(mockProv, nil)
+		metaSvc := metadata.NewService(mockProv, nil, logger.New("test"))
 		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		resources := []youtubeurl.YouTubeInput{
 			{InputType: youtubeurl.InputTypePlaylist, ID: "pl1"},
 		}
 
-		planner, _ := fields.NewPlanner([]string{"transcript_text"})
+		planner, _ := fields.NewPlanner([]string{"transcript_text"}, logger.New("test"))
 
 		res, err := svc.EstimateResource(context.Background(), resources, planner)
 		if err != nil {
@@ -216,7 +232,7 @@ func TestService_Check(t *testing.T) {
 			},
 		}
 
-		metaSvc := metadata.NewService(mockProv, nil)
+		metaSvc := metadata.NewService(mockProv, nil, logger.New("test"))
 		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		req := Request{
@@ -259,7 +275,7 @@ func TestService_Check(t *testing.T) {
 			},
 		}
 
-		metaSvc := metadata.NewService(mockProv, nil)
+		metaSvc := metadata.NewService(mockProv, nil, logger.New("test"))
 		svc := NewService(metaSvc, nil, logger.New("test"), 100)
 
 		req := Request{

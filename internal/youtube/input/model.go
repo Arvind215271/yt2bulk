@@ -1,16 +1,17 @@
-package youtubeurl 	
+package youtubeurl
 
 type InputType string
 
 const (
 	InputTypeVideo    InputType = "video"
 	InputTypePlaylist InputType = "playlist"
+	InputTypeChannel  InputType = "channel"
 )
 
 type YouTubeInput struct {
-	InputType    InputType
-	ID           string
-	OriginalURL  string
+	InputType     InputType
+	ID            string
+	OriginalURL   string
 	NormalizedURL string
 }
 
@@ -21,8 +22,8 @@ type ParseItemResult struct {
 }
 
 type LineResult struct {
-	Line   int
-	Raw    string
-	Input  *YouTubeInput
-	Error  error
+	Line  int
+	Raw   string
+	Input *YouTubeInput
+	Error error
 }

@@ -17,7 +17,7 @@ func TestRequest_Combinations(t *testing.T) {
 		fields.FieldTranscriptSignal,
 		fields.FieldDescriptionChapters,
 		fields.FieldTitle,
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error creating planner: %v", err)
 	}
